@@ -274,8 +274,25 @@ public class HttpEntityParser {
           "[EntityParser.parse( HttpEntity )] "
               + "Invalid HttpEntity {"+ entity+ "}");
     
+    this.parse(entity.getContent());
+    EntityUtils.consume(entity);
+    return this;
+  }
+  
+  
+  /**
+   * Parse the specified <code>InputStream</code> content.
+   * @param content <code>InputStream</code> to parse.
+   * @return This modified <code>HttpEntityParser</code> instance.
+   * @throws IOException In case of error parsing.
+   */
+  public HttpEntityParser parse(InputStream content) throws IOException {
+    if(content == null)
+      throw new IllegalArgumentException(
+          "[EntityParser.parse( InputStream )] "
+              + "Invalid InputStream {"+ content+ "}");
+    
     buffer.clear();
-    InputStream content = entity.getContent();
     checkExpectedToken(XmlConsts.START_XML, readFive(content));
     
     String five = readFive(content);
@@ -285,7 +302,6 @@ public class HttpEntityParser {
     IO.tr(content, buffer.getRawOutputStream());
     // get decoding stream
     content = buffer.getReadBuffer().getInputStream();
-    EntityUtils.consume(entity);
     
     five = readFive(content);
     five = tryObject(content, five);

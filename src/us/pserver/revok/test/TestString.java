@@ -21,34 +21,24 @@
 
 package us.pserver.revok.test;
 
-import java.io.IOException;
-import us.pserver.cdr.StringByteConverter;
-import us.pserver.revok.OpResult;
-import us.pserver.revok.protocol.XmlSerializer;
-
 /**
  *
  * @author Juno Roesler - juno.rr@gmail.com
- * @version 1.0 - 11/05/2015
+ * @version 1.0 - 03/06/2015
  */
-public class TestXStream {
+public class TestString {
 
   
-  public static void main(String[] args) throws IOException {
-    XmlSerializer xs = new XmlSerializer();
-    StringByteConverter scv = new StringByteConverter();
-    OpResult result = new OpResult();
-    result.setReturn("Some String");
-    result.setError(new IOException("Some Exception"));
-    result.setSuccessOperation(false);
-    System.out.println("* toBytes:");
-    byte[] bs = xs.toBytes(result);
-    System.out.println(scv.reverse(bs));
-    
-    System.out.println("\n");
-    
-    System.out.println("* fromBytes:");
-    System.out.println(xs.fromBytes(bs));
+  public static void main(String[] args) {
+    String s1 = " string ";
+    String s2 = "   string2 ";
+    String s3 = "  string  string   ";
+    System.out.println("* string1 = '"+ s1+ "'");
+    System.out.println("* string1.trim() = '"+ s1.trim()+ "'");
+    System.out.println("* string2 = '"+ s2+ "'");
+    System.out.println("* string2 = '"+ s2.trim()+ "'");
+    System.out.println("* string3 = '"+ s3+ "'");
+    System.out.println("* string3 = '"+ s3.trim()+ "'");
   }
   
 }

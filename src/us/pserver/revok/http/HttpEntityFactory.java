@@ -375,6 +375,19 @@ public class HttpEntityFactory {
   public HttpEntity create() throws IOException {
     if(key == null && obj == null && input == null)
       return null;
+    InputStream istream = createStream();
+    return new InputStreamEntity(istream, istream.available(), type);
+  }
+  
+  
+  /**
+   * Create an <code>InputStream</code> with the content to be transmitted.
+   * @return <code>InputStream</code> with the content to be transmitted.
+   * @throws IOException In case of error creating the <code>InputStream</code>.
+   */
+  public InputStream createStream() throws IOException {
+    if(key == null && obj == null && input == null)
+      return null;
     
     buffer.clear();
     buffer.write(scv.convert(XmlConsts.START_XML));
@@ -389,8 +402,7 @@ public class HttpEntityFactory {
     os.flush();
     os.close();
     
-    InputStream istream = buffer.getReadBuffer().getRawInputStream();
-    return new InputStreamEntity(istream, istream.available(), type);
+    return buffer.getReadBuffer().getRawInputStream();
   }
   
   

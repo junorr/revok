@@ -21,8 +21,21 @@
 
 package us.pserver.revok.servlet;
 
+import com.jpower.rfl.Reflector;
+import java.io.IOException;
+import java.util.List;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import us.pserver.revok.container.Authenticator;
+import us.pserver.revok.container.Credentials;
+import us.pserver.revok.container.CredentialsSource;
 import us.pserver.revok.container.ObjectContainer;
+import us.pserver.revok.http.HttpConsts;
+import us.pserver.revok.http.HttpEntityParser;
+import us.pserver.revok.protocol.JsonSerializer;
 import us.pserver.revok.protocol.ObjectSerializer;
 
 /**
@@ -31,10 +44,98 @@ import us.pserver.revok.protocol.ObjectSerializer;
  * @version 1.0 - 28/05/2015
  */
 public class RevokServlet extends HttpServlet {
-
+  
   private ObjectContainer container;
   
   private ObjectSerializer serial;
   
+  private ServletConfigUtil util;
+  
+  
+  public Class stringToClass(String str) {
+    try { 
+      return Class.forName(str); 
+    }
+    catch(ClassNotFoundException e) { 
+      return null; 
+    }
+  }
+  
+  
+  private void initObjectSerializer() throws ServletException {
+    Reflector ref = new Reflector();
+    String name = ObjectSerializer.class.getName();
+    if(util.hasParam(name)) {
+      serial = (ObjectSerializer) ref.onClass(
+          util.getParam(name)).create();
+      if(ref.hasError()) {
+        throw new ServletException("Error creating ObjectSerializer: "
+            + util.getParam(name), ref.getError());
+      }
+    }
+    else {
+      serial = new JsonSerializer();
+    }
+  }
+  
+  
+  private void initObjects() {
+    String name = ObjectContainer.class.getName();
+    List<ObjectParam> lso = util.getObjectParamList(name);
+    if(!util.hasParam(name) || lso.isEmpty()) {
+      this.log("No objects to initialize");
+      return;
+    }
+    lso.forEach(p->container.put(p.getName(), p.createObject()));
+  }
+  
+  
+  private void initObjectContainer() throws ServletException {
+    if(util.hasParam(Credentials.class.getName())) {
+      CredentialsSource src = new ServletCredentialsSource(util.getServletConfig());
+      container = new ObjectContainer(new Authenticator(src));
+    }
+    else if(util.hasParam(CredentialsSource.class.getName())) {
+      Reflector ref = new Reflector();
+      String sclass = util.getParam(CredentialsSource.class.getName());
+      CredentialsSource src = (CredentialsSource) 
+          ref.onClass(sclass).create();
+      if(ref.hasError()) {
+        throw new ServletException("Error creating CredentialsSource: "
+            + sclass, ref.getError());
+      }
+      container = new ObjectContainer(new Authenticator(src));
+    }
+    else {
+      container = new ObjectContainer();
+    }
+  }
+  
+  
+  @Override
+  public void init(ServletConfig config) throws ServletException {
+    util = new ServletConfigUtil(config);
+    this.initObjectSerializer();
+    this.initObjectContainer();
+    this.initObjects();
+  }
+  
+  
+  @Override
+  public void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException {
+    HttpEntityParser parser = HttpEntityParser.instance(serial);
+    String enc = req.getHeader(HttpConsts.HD_CONT_ENCODING);
+    if(HttpConsts.HD_VAL_GZIP_ENCODING.equals(enc)) {
+      parser.enableGZipCoder();
+    }
+    try {
+      parser.parse(req.getInputStream());
+      if(parser.getObject() == null) {
+        throw new ServletException("Invalid request. No object readed");
+      }
+    } catch(IOException e) {
+      throw new ServletException(e.toString(), e);
+    }
+  }
   
 }

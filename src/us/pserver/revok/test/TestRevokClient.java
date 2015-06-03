@@ -51,7 +51,7 @@ public class TestRevokClient {
     RemoteMethod rm = null;
     List<String> mts = null;
     
-    /*
+    
     System.out.println("----------------------------------");
     rm = new RemoteMethod()
         .forObject("global.ObjectContainer")
@@ -62,7 +62,7 @@ public class TestRevokClient {
     mts = (List<String>) rob.invoke(rm);
     System.out.println("* mts.size="+ mts.size());
     mts.forEach(System.out::println);
-    */
+    
     
     System.out.println("----------------------------------");
     rm = new RemoteMethod()
@@ -75,15 +75,15 @@ public class TestRevokClient {
     System.out.println("* objs.size="+ mts.size());
     mts.forEach(System.out::println);
     
-    /*
+    
     System.out.println("----------------------------------");
     chain.add("calc.ICalculator", "xyz")
         .types(double.class, double.class, double.class)
-        .params(113.0, 7.0, 0.0);
+        .args(113.0, 7.0, 0.0);
     chain.add("div");
     chain.add("print");
     chain.add("moveZX");
-    chain.add("round").types(int.class).params(4);
+    chain.add("round").types(int.class).args(4);
     chain.add("z");
     System.out.println("* Invoke      --> "+ chain);
     Double z = (Double) rob.invoke(chain);
@@ -94,7 +94,7 @@ public class TestRevokClient {
     rm = new RemoteMethod()
         .forObject("calc.ICalculator")
         .method("z")
-        .returnVar("$calc.temp");
+        .setReturnVar("$calc.temp");
     System.out.println("* Invoke      --> "+ rm);
     System.out.println(">> "+ rob.invoke(rm));
     
@@ -104,24 +104,16 @@ public class TestRevokClient {
         .forObject("calc.ICalculator")
         .method("sum")
         .types(double.class, double.class)
-        .params("$calc.temp", 30.0);
+        .args("$calc.temp", 30.0);
     System.out.println("* Invoke      --> "+ rm);
     System.out.println(">> "+ rob.invoke(rm));
-    */
+    
     
     System.out.println("----- ProxyClass: ICalculator -----");
     ICalculator calc = rob.createRemoteObject("calc", ICalculator.class);
     System.out.println("* Invoking calc.sum( 30, 27 ) = "+ calc.sum(30, 27));
     System.out.println("* Invoking calc.printZ()");
     calc.printZ();
-    
-    System.out.println("----- ProxyClass: Server -----");
-    Server srv = rob.createRemoteObject("global.RevokServer", Server.class);
-    System.out.println("* Server: srv="+ srv);
-    System.out.println("* Invoking srv.isRunning() = "+ srv.isRunning());
-    System.out.println("* Invoking srv.getAvailableThreads() = "+ srv.getAvailableThreads());
-    //System.out.println("* Invoking srv.stop()");
-    //srv.stop();
     
     System.out.println("----------------------------------");
     IStreamHandler handler = rob.createRemoteObject("io", IStreamHandler.class);
@@ -132,6 +124,14 @@ public class TestRevokClient {
     InputStream is = handler.read(p);
     System.out.println(is+ ", available="+ is.available());
     IO.tr(is, IO.os(IO.p("/storage/pic-2.jpg")));
+    
+    System.out.println("----- ProxyClass: Server -----");
+    Server srv = rob.createRemoteObject("global.RevokServer", Server.class);
+    System.out.println("* Server: srv="+ srv);
+    System.out.println("* Invoking srv.isRunning() = "+ srv.isRunning());
+    System.out.println("* Invoking srv.getAvailableThreads() = "+ srv.getAvailableThreads());
+    System.out.println("* Invoking srv.stop()");
+    srv.stop();
     
     rob.close();
   }
