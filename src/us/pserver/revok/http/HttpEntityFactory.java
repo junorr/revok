@@ -275,19 +275,6 @@ public class HttpEntityFactory {
   
   
   /**
-   * Put a criptography key for encoding http content.
-   * @param key Criptography key.
-   * @return This modified <code>HttpEntityFactory</code> instance.
-   */
-  public HttpEntityFactory put(CryptKey key) {
-    if(key != null) {
-      this.key = key;
-    }
-    return this;
-  }
-  
-  
-  /**
    * Put an object for embed in http content.
    * @param obj Object for embed in http content.
    * @return This modified <code>HttpEntityFactory</code> instance.

@@ -28,7 +28,7 @@ import com.jpower.rfl.Reflector;
  * @author Juno Roesler - juno.rr@gmail.com
  * @version 1.0 - 03/06/2015
  */
-public class ObjectParam {
+public class ServletObjectParam {
   
   public static final String EQ = "=";
 
@@ -37,24 +37,25 @@ public class ObjectParam {
   private String cname;
   
   
-  public ObjectParam() {
+  public ServletObjectParam() {
     name = null;
     cname = null;
   }
   
   
-  public ObjectParam(String name, String className) {
+  public ServletObjectParam(String name, String className) {
     this.name = name;
     className = cname;
   }
   
   
-  public static ObjectParam parse(String str) {
+  public static ServletObjectParam parse(String str) {
     if(str == null) return null;
+    str = str.replace("\n", "").replace("\r", "").replace("\t", "");
     String[] pair;
     if(str.contains(EQ)) pair = str.trim().split(EQ);
     else pair = new String[] {str.trim(), str.trim()};
-    return new ObjectParam(pair[0].trim(), pair[1].trim());
+    return new ServletObjectParam(pair[0].trim(), pair[1].trim());
   }
   
   

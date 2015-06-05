@@ -70,15 +70,15 @@ public class ServletConfigUtil {
   }
   
   
-  public List<ObjectParam> getObjectParamList(String name) {
+  public List<ServletObjectParam> getObjectParamList(String name) {
     if(!hasParam(name)) return Collections.EMPTY_LIST;
-    ArrayList<ObjectParam> ls = new ArrayList<>();
+    ArrayList<ServletObjectParam> ls = new ArrayList<>();
     String param = this.getServletConfig().getInitParameter(name);
     if(param.contains(",")) {
       Arrays.asList(param.split(","))
-          .forEach(s->ls.add(ObjectParam.parse(s)));
+          .forEach(s->ls.add(ServletObjectParam.parse(s)));
     } else {
-      ls.add(ObjectParam.parse(param));
+      ls.add(ServletObjectParam.parse(param));
     }
     return ls;
   }

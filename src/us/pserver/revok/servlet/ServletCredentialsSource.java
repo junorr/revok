@@ -36,9 +36,9 @@ public class ServletCredentialsSource extends ListCredentialsSource {
   private ServletConfigUtil util;
   
   
-  public ServletCredentialsSource(ServletConfig sc) {
+  public ServletCredentialsSource(ServletConfigUtil sc) {
     super();
-    util = new ServletConfigUtil(sc);
+    util = sc;
     init();
   }
   
