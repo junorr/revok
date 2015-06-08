@@ -44,7 +44,7 @@ public class TestRevokClient {
   
   public static void main(String[] args) throws MethodInvocationException, IOException {
     MethodChain chain = new MethodChain();
-    HttpConnector hc = new HttpConnector("http://localhost/revokServletTest/revok", 8080);
+    HttpConnector hc = new HttpConnector("http://localhost:8080/revokServletTest/revok");
     Credentials cred = new Credentials("juno", "1234".getBytes());
     RemoteObject rob = new RemoteObject(hc, new JsonSerializer())
         .setCredentials(cred);

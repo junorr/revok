@@ -52,7 +52,8 @@ public class ServletCredentialsSource extends ListCredentialsSource {
     Credentials last = null;
     for(String s : ls) {
       last = parseCreds(s, last);
-      if(last != null) this.add(last);
+      if(last != null && !this.contains(last)) 
+        this.add(last);
     }
   }
   

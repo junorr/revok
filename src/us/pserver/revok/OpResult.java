@@ -162,9 +162,9 @@ public class OpResult {
   @Override
   public String toString() {
     return "OpResult{ " + "success = " + success 
-        + ", return = " + (ret.toString().length() > 87 
+        + ", return = " + (ret == null ? "null" : (ret.toString().length() > 87 
             ? ret.toString().substring(0, 87).concat("...")
-            : ret.toString()) + " }";
+            : ret.toString())) + " }";
   }
   
 }

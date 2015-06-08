@@ -21,6 +21,7 @@
 
 package us.pserver.revok.container;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -199,6 +200,13 @@ public class ListCredentialsSource implements CredentialsSource, List<Credential
   @Override
   public List<Credentials> subList(int fromIndex, int toIndex) {
     return creds.subList(fromIndex, toIndex);
+  }
+  
+  
+  @Override
+  public String toString() {
+    if(this.isEmpty()) return "[]";
+    return Arrays.toString(this.toArray());
   }
 
 }

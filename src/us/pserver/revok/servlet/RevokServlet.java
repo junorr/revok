@@ -105,7 +105,7 @@ public class RevokServlet extends HttpServlet {
       return;
     }
     lso.forEach(p->{
-      log.debug("Adding configured object: "+ p.getName()+ "="+ p.getClassName());
+      log.debug("Adding configured object - {}: {}", p.getName(), p.getClassName());
       container.put(p.getName(), p.createObject());
     });
   }
@@ -114,9 +114,8 @@ public class RevokServlet extends HttpServlet {
   private void initObjectContainer() throws ServletException {
     log.debug("Init ObjectContainer...");
     if(util.hasParam(Credentials.class.getName())) {
-      log.debug("Using configured credentials: "
-          + util.getParam(Credentials.class.getName()));
-      CredentialsSource src = new ServletCredentialsSource(util);
+      ServletCredentialsSource src = new ServletCredentialsSource(util);
+      log.debug("Using configured credentials: {}", src);
       container = new ObjectContainer(new Authenticator(src));
     }
     else if(util.hasParam(CredentialsSource.class.getName())) {
@@ -140,7 +139,7 @@ public class RevokServlet extends HttpServlet {
   
   @Override
   public void init(ServletConfig config) throws ServletException {
-    log = LogFactory.getSimpleLogger(RevokServer.class)
+    log = LogFactory.getSimpleLog(RevokServer.class)
         .put(ID_SERVLET_OUTPUT, 
             new ServletLogOutput(config.getServletContext()));
     log.debug("Init Servlet...");
@@ -152,18 +151,7 @@ public class RevokServlet extends HttpServlet {
   
   
   @Override
-  public void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException {
-    Enumeration<String> hds = req.getHeaderNames();
-    log.debug("RevokServlet.doGet()");
-    while(hds.hasMoreElements()) {
-      log.debug(hds.nextElement());
-    }
-  }
-  
-  
-  @Override
   public void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException {
-    log.debug("RevokServlet.doPost()");
     try {
       ServletChannel channel = new ServletChannel(req, resp, serial);
       RunnableConnectionHandler handler = new RunnableConnectionHandler(channel, container);

@@ -26,12 +26,16 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.nio.file.Paths;
+import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.apache.http.HttpServerConnection;
 import org.apache.http.impl.DefaultBHttpServerConnection;
 import us.pserver.log.Log;
 import us.pserver.log.LogFactory;
+import us.pserver.log.output.FileLogOutput;
+import us.pserver.log.output.LogOutput;
 import us.pserver.revok.HttpConnector;
 import us.pserver.revok.container.ObjectContainer;
 import us.pserver.revok.factory.ChannelFactory;
@@ -243,7 +247,8 @@ public class RevokServer extends AbstractServer {
    * @return This modified <code>RevokServer</code> instance.
    */
   public RevokServer enableLogging() {
-    log = LogFactory.getSimpleLogger(this.getClass());
+    log = LogFactory.getSimpleLog(this.getClass());
+    LogFactory.putCached("us.pserver.revok", log);
     return this;
   }
   
@@ -255,7 +260,7 @@ public class RevokServer extends AbstractServer {
    */
   public RevokServer enableFileLogging(String path) {
     if(path != null && !path.trim().isEmpty()) {
-      log = LogFactory.getSimpleLogger(this.getClass(), Paths.get(path));
+      log = LogFactory.getSimpleLog(this.getClass(), Paths.get(path));
     }
     return this;
   }
@@ -266,7 +271,16 @@ public class RevokServer extends AbstractServer {
    * @return This modified <code>RevokServer</code> instance.
    */
   public RevokServer disableFileLogging() {
-    return enableLogging();
+    if(log != null) {
+      Optional<Entry<String, LogOutput>> flog = 
+          log.outputsMap().entrySet().stream().filter(e->
+              FileLogOutput.class.isAssignableFrom(
+                  e.getValue().getClass())).findFirst();
+      if(flog.isPresent()) 
+        log.remove(flog.get().getKey());
+    }
+    else enableLogging();
+    return this;
   }
   
   

@@ -25,6 +25,10 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.apache.http.HttpClientConnection;
 import org.apache.http.impl.DefaultBHttpClientConnection;
 import us.pserver.cdr.b64.Base64StringCoder;
@@ -100,13 +104,11 @@ public class HttpConnector {
    * @param address Network address <code>String</code>.
    * @param port Network port <code>int</code>.
    */
-  public HttpConnector(String address, int port) {
+  public HttpConnector(String address) {
+    this();
     if(address == null)
       throw new IllegalArgumentException("[HttpConnector( String, int )] "
           + "Invalid address ["+ address+ "]");
-    if(port < 0 || port > 65535)
-      throw new IllegalArgumentException("[HttpConnector( String, int )] "
-          + "Port out of range 1-65535 {"+ port+ "}");
     proto = HttpConsts.HTTP;
     path = null;
     proxyAddr = null;
@@ -114,7 +116,6 @@ public class HttpConnector {
     proxyAuth = null;
     cdr = new Base64StringCoder();
     this.setAddress(address);
-    this.setPort(port);
   }
   
 
@@ -144,22 +145,31 @@ public class HttpConnector {
           "[HttpConnector.setAddress( String )] "
               + "Invalid address ["+ addr+ "]");
     
-    if(addr.startsWith("http")) {
-      address = addr.substring(addr.indexOf(COLON)+3);
-      proto = addr.substring(0, addr.indexOf(COLON)+3);
-    }
-    else {
-      address = addr;
+    Pattern pt = Pattern.compile("[\\w]+://");
+    Matcher m = pt.matcher(addr);
+    if(m.find()) {
+      proto = addr.substring(m.start(), m.end());
+      addr = addr.substring(m.end());
     }
     
-    if(address.contains(SLASH)) {
-      int is = address.indexOf(SLASH);
-      path = address.substring(is);
-      address = address.substring(0, is);
-    } 
-    else {
-      path = SLASH;
+    pt = Pattern.compile(":[\\d]+");
+    m = pt.matcher(addr);
+    if(m.find()) {
+      port = Integer.parseInt(addr.substring(m.start()+1, m.end()));
+    if(port <= 0 || port > 65535)
+      throw new IllegalArgumentException("Port out of range 1-65535 {"+ port+ "}");
+      addr = addr.substring(0, m.start())
+          .concat(addr.substring(m.end()));
     }
+    
+    pt = Pattern.compile("/[\\w].");
+    m = pt.matcher(addr);
+    if(m.find()) {
+      path = addr.substring(m.start());
+      addr = addr.substring(0, m.start());
+    }
+    
+    address = addr;
     return this;
   }
 
@@ -213,11 +223,13 @@ public class HttpConnector {
    * @return Full address <code>String</code>.
    */
   public String getFullAddress() {
+    String ret = address;
     if(address == null || address.trim().isEmpty()
         && path != null) 
-      return path;
-    else 
-      return proto + address + path;
+      ret = path;
+    else if(proto != null)
+      ret = proto+ address+ ":"+ port+ path;
+    return ret;
   }
   
   
@@ -310,13 +322,16 @@ public class HttpConnector {
    * @return URI String address. 
    */
   public String getURIString() {
-    String uri = proto.concat(address == null ? "localhost" : address);
-    if(port > 0) {
-      if(address.endsWith(HttpConsts.SLASH))
-        uri = uri.substring(0, uri.length() -1);
-      uri = uri.concat(HttpConsts.COLON).concat(String.valueOf(port));
+    return getFullAddress();
+  }
+  
+  
+  public URI getURI() {
+    try {
+      return new URI(getURIString());
+    } catch(URISyntaxException e) {
+      return null;
     }
-    return uri.concat(HttpConsts.SLASH);
   }
   
   

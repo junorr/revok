@@ -24,6 +24,7 @@ package us.pserver.revok.channel;
 import us.pserver.revok.protocol.Transport;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Arrays;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
@@ -41,6 +42,7 @@ import org.apache.http.protocol.RequestUserAgent;
 import us.pserver.cdr.crypt.CryptAlgorithm;
 import us.pserver.cdr.crypt.CryptKey;
 import static us.pserver.chk.Checker.nullarg;
+import us.pserver.log.LogFactory;
 import us.pserver.revok.HttpConnector;
 import us.pserver.revok.http.HttpEntityFactory;
 import us.pserver.revok.http.HttpEntityParser;
@@ -303,6 +305,8 @@ public class HttpRequestChannel implements Channel {
     try {
       HttpEntityEnclosingRequest request = createRequest(trp);
       processor.process(request, context);
+      LogFactory.getSimpleLog(this.getClass()).debug(request.getRequestLine().toString());
+      Arrays.asList(request.getAllHeaders()).forEach(h->LogFactory.getSimpleLog(this.getClass()).debug(h.toString()));
       conn.sendRequestHeader(request);
       conn.sendRequestEntity(request);
       this.verifyResponse();

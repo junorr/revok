@@ -201,7 +201,7 @@ public class Credentials {
 
   @Override
   public String toString() {
-    return "Credentials{ user = " + user + " }";
+    return "Credentials{ user=" + user + ", access="+ access+ " }";
   }
   
 }

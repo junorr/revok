@@ -44,7 +44,7 @@ public class ServletLogOutput implements LogOutput {
   public ServletLogOutput(ServletContext svt) {
     if(svt == null)
       throw new IllegalArgumentException("Invalid null GenericServlet");
-    LogFactory.getSimpleLogger(RevokServer.class);
+    LogFactory.getSimpleLog(RevokServer.class);
     scontext = svt;
     levels = new LogLevelManager();
   }

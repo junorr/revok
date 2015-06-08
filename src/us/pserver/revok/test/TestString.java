@@ -21,6 +21,8 @@
 
 package us.pserver.revok.test;
 
+import us.pserver.revok.HttpConnector;
+
 /**
  *
  * @author Juno Roesler - juno.rr@gmail.com
@@ -39,6 +41,15 @@ public class TestString {
     System.out.println("* string2 = '"+ s2.trim()+ "'");
     System.out.println("* string3 = '"+ s3+ "'");
     System.out.println("* string3 = '"+ s3.trim()+ "'");
+    
+    HttpConnector con = new HttpConnector();
+    con.setAddress("http://localhost:8080/revok");
+    System.out.println("con.getURIString(): "+ con.getURIString());
+    System.out.println("con.getFullAddress(): "+ con.getFullAddress());
+    System.out.println("con.getProtocol(): "+ con.getProtocol());
+    System.out.println("con.getAddress(): "+ con.getAddress());
+    System.out.println("con.getPort(): "+ con.getPort());
+    System.out.println("con.getPath(): "+ con.getPath());
   }
   
 }

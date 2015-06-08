@@ -87,16 +87,11 @@ public class RunnableConnectionHandler implements Runnable {
           "[HttpConnectionHandler()] "
               + "Invalid ObjectContainer {"+ cont+ "}");
     
-    if(log == null)
-      throw new IllegalArgumentException(
-          "[HttpConnectionHandler()] "
-              + "Invalid Log {"+ log+ "}");
-    
     //Set the internal properties and log the connection.
     channel = ch;
     closed = false;
     container = cont;
-    log = LogFactory.getSimpleLogger(RevokServer.class);
+    log = LogFactory.getSimpleLog(RevokServer.class);
   }
   
   
