@@ -22,6 +22,9 @@
 package us.pserver.revok.servlet;
 
 import com.jpower.rfl.Reflector;
+import us.pserver.log.Log;
+import us.pserver.log.LogFactory;
+import us.pserver.revok.server.RevokServer;
 
 /**
  *
@@ -45,7 +48,7 @@ public class ServletObjectParam {
   
   public ServletObjectParam(String name, String className) {
     this.name = name;
-    className = cname;
+    this.cname = className;
   }
   
   
@@ -53,7 +56,7 @@ public class ServletObjectParam {
     if(str == null) return null;
     str = str.replace("\n", "").replace("\r", "").replace("\t", "");
     String[] pair;
-    if(str.contains(EQ)) pair = str.trim().split(EQ);
+    if(str.contains(EQ)) pair = str.split(EQ);
     else pair = new String[] {str.trim(), str.trim()};
     return new ServletObjectParam(pair[0].trim(), pair[1].trim());
   }

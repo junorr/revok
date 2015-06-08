@@ -25,13 +25,13 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.nio.file.Paths;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.apache.http.HttpServerConnection;
 import org.apache.http.impl.DefaultBHttpServerConnection;
 import us.pserver.log.Log;
-import us.pserver.log.SimpleLog;
-import us.pserver.log.SimpleLogFactory;
+import us.pserver.log.LogFactory;
 import us.pserver.revok.HttpConnector;
 import us.pserver.revok.container.ObjectContainer;
 import us.pserver.revok.factory.ChannelFactory;
@@ -233,7 +233,7 @@ public class RevokServer extends AbstractServer {
    * @return This modified <code>RevokServer</code> instance.
    */
   public RevokServer disableLogging() {
-    log = new SimpleLog().reset().clearOutputs();
+    log.clearOutputs();
     return this;
   }
   
@@ -243,14 +243,7 @@ public class RevokServer extends AbstractServer {
    * @return This modified <code>RevokServer</code> instance.
    */
   public RevokServer enableLogging() {
-    log = SimpleLogFactory.instance().reset()
-        .newStdOutput()
-        .enableNonErrorLevels()
-        .add()
-        .newErrOutput()
-        .enableErrorLevels()
-        .add()
-        .create();
+    log = LogFactory.getSimpleLogger(this.getClass());
     return this;
   }
   
@@ -262,20 +255,7 @@ public class RevokServer extends AbstractServer {
    */
   public RevokServer enableFileLogging(String path) {
     if(path != null && !path.trim().isEmpty()) {
-      log = SimpleLogFactory.instance().reset()
-          .newStdOutput()
-          .enableNonErrorLevels()
-          .debug(false)
-          .add()
-          
-          .newErrOutput()
-          .enableErrorLevels()
-          .add()
-          
-          .newFileOutput(path)
-          .enableAllLevels()
-          .add()
-          .create();
+      log = LogFactory.getSimpleLogger(this.getClass(), Paths.get(path));
     }
     return this;
   }
@@ -357,7 +337,7 @@ public class RevokServer extends AbstractServer {
           log.info("------------------------------")
               .info("Handling socket: "+ conn.toString());
           exec.submit(new RunnableConnectionHandler(
-              factory.createChannel(conn, serial), container, log));
+              factory.createChannel(conn, serial), container));
           // Catch socket timeout exceptions and continue 
           // accepting other connections
         } catch(SocketTimeoutException se) {}
@@ -366,7 +346,7 @@ public class RevokServer extends AbstractServer {
       // Catch and log other error occurred accepting connections.
       // Errors over server listening connections are fatal
       // and irrecoverable.
-      log.fatal(
+      log.error(
           new IOException("Error running RevokServer", e), true);
       if(log.outputs().isEmpty())
         throw new RuntimeException("Error running RevokServer", e);

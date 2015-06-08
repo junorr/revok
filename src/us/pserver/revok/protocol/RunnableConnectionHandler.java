@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import static us.pserver.chk.Checker.nullarg;
 import us.pserver.log.Log;
+import us.pserver.log.LogFactory;
 import us.pserver.revok.MethodChain;
 import us.pserver.revok.MethodInvocationException;
 import us.pserver.revok.OpResult;
@@ -33,6 +34,7 @@ import us.pserver.revok.channel.Channel;
 import us.pserver.revok.container.AuthenticationException;
 import us.pserver.revok.container.ObjectContainer;
 import us.pserver.revok.reflect.Invoker;
+import us.pserver.revok.server.RevokServer;
 
 /**
  * <code>HttpConnectionHandler</code> handle client requests 
@@ -71,10 +73,10 @@ public class RunnableConnectionHandler implements Runnable {
    * channel and the server Http connection 
    * <code>HttpServerConnection</code>.
    * @param ch The network communication channel.
-   * @param hsc he server Http connection 
    * <code>HttpServerConnection</code>.
+   * @param cont The <code>ObjectContainer</code> that holds the objects.
    */
-  public RunnableConnectionHandler(Channel ch, ObjectContainer cont, Log log) {
+  public RunnableConnectionHandler(Channel ch, ObjectContainer cont) {
     if(ch == null)
       throw new IllegalArgumentException(
           "[HttpConnectionHandler()] "
@@ -92,9 +94,9 @@ public class RunnableConnectionHandler implements Runnable {
     
     //Set the internal properties and log the connection.
     channel = ch;
-    this.log = log;
     closed = false;
     container = cont;
+    log = LogFactory.getSimpleLogger(RevokServer.class);
   }
   
   
@@ -161,7 +163,7 @@ public class RunnableConnectionHandler implements Runnable {
       log.info("Response sent: "+ trp.getObject());
     } catch(IOException e) {
       // Log an error occurred on channel writing.
-      log.warning(
+      log.warn(
           new IOException("Error writing response", e), false);
       if(log.outputs().isEmpty())
         throw new RuntimeException("Error writing response", e);
@@ -191,8 +193,8 @@ public class RunnableConnectionHandler implements Runnable {
       // and log the error.
       op.setSuccessOperation(false);
       op.setError(e);
-      log.warning("Error invoking method {"+ rm+ "}")
-          .warning(e, !(e instanceof AuthenticationException));
+      log.warn("Error invoking method {"+ rm+ "}")
+          .warn(e, !(e instanceof AuthenticationException));
     }
     return op;
   }
@@ -228,8 +230,8 @@ public class RunnableConnectionHandler implements Runnable {
       // Catch, log and set an occurred error in the operation result.
       op.setSuccessOperation(false);
       op.setError(e);
-      log.warning("Error invoking method ["+ chain.current()+ "]")
-          .warning(e, true);
+      log.warn("Error invoking method ["+ chain.current()+ "]")
+          .warn(e, true);
       if(log.outputs().isEmpty())
         throw new RuntimeException("Error invoking method ["+ chain.current()+ "]", e);
     }

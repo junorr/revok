@@ -30,7 +30,7 @@ import us.pserver.revok.MethodInvocationException;
 import us.pserver.revok.RemoteMethod;
 import us.pserver.revok.RemoteObject;
 import us.pserver.revok.container.Credentials;
-import us.pserver.revok.protocol.XmlSerializer;
+import us.pserver.revok.protocol.JsonSerializer;
 import us.pserver.revok.server.Server;
 import us.pserver.streams.IO;
 
@@ -44,9 +44,9 @@ public class TestRevokClient {
   
   public static void main(String[] args) throws MethodInvocationException, IOException {
     MethodChain chain = new MethodChain();
-    HttpConnector hc = new HttpConnector("localhost", 9995);
+    HttpConnector hc = new HttpConnector("http://localhost/revokServletTest/revok", 8080);
     Credentials cred = new Credentials("juno", "1234".getBytes());
-    RemoteObject rob = new RemoteObject(hc, new XmlSerializer())
+    RemoteObject rob = new RemoteObject(hc, new JsonSerializer())
         .setCredentials(cred);
     RemoteMethod rm = null;
     List<String> mts = null;

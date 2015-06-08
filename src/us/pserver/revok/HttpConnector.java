@@ -107,14 +107,14 @@ public class HttpConnector {
     if(port < 0 || port > 65535)
       throw new IllegalArgumentException("[HttpConnector( String, int )] "
           + "Port out of range 1-65535 {"+ port+ "}");
-    this.address = address;
-    this.port = port;
     proto = HttpConsts.HTTP;
     path = null;
     proxyAddr = null;
     proxyPort = 0;
     proxyAuth = null;
     cdr = new Base64StringCoder();
+    this.setAddress(address);
+    this.setPort(port);
   }
   
 

@@ -21,13 +21,56 @@
 
 package us.pserver.revok.servlet;
 
-import us.pserver.log.BasicLogOutput;
+import javax.servlet.GenericServlet;
+import javax.servlet.ServletContext;
+import us.pserver.log.LogFactory;
+import us.pserver.log.LogLevel;
+import us.pserver.log.internal.LogLevelManager;
+import us.pserver.log.output.LogOutput;
+import us.pserver.revok.server.RevokServer;
 
 /**
  *
  * @author Juno Roesler - juno.rr@gmail.com
  * @version 1.0 - 05/06/2015
  */
-public class ServletLogOutput extends BasicLogOutput {
+public class ServletLogOutput implements LogOutput {
+  
+  private ServletContext scontext;
+  
+  private LogLevelManager levels;
+  
+  
+  public ServletLogOutput(ServletContext svt) {
+    if(svt == null)
+      throw new IllegalArgumentException("Invalid null GenericServlet");
+    LogFactory.getSimpleLogger(RevokServer.class);
+    scontext = svt;
+    levels = new LogLevelManager();
+  }
+
+
+  @Override
+  public LogOutput setLevelEnabled(LogLevel lvl, boolean enabled) {
+    levels.setLevelEnabled(lvl, enabled);
+    return this;
+  }
+
+
+  @Override
+  public boolean isLevelEnabled(LogLevel lvl) {
+    return levels.isLevelEnabled(lvl);
+  }
+
+
+  @Override
+  public LogOutput log(LogLevel lvl, String msg) {
+    if(lvl!= null && msg != null && levels.isLevelEnabled(lvl)) {
+      scontext.log("\n"+ msg);
+    }
+    return this;
+  }
+
+  @Override public void close() {}
 
 }
