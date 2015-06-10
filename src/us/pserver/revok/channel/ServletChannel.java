@@ -28,7 +28,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import us.pserver.cdr.crypt.CryptKey;
-import us.pserver.revok.channel.Channel;
 import us.pserver.revok.http.HttpConsts;
 import us.pserver.revok.http.HttpEntityFactory;
 import us.pserver.revok.http.HttpEntityParser;
@@ -37,7 +36,8 @@ import us.pserver.revok.protocol.Transport;
 import us.pserver.streams.IO;
 
 /**
- *
+ * Network channel for communication throught HttpServletRequest and HttpServletResponse.
+ * 
  * @author Juno Roesler - juno.rr@gmail.com
  * @version 1.0 - 05/06/2015
  */
@@ -58,6 +58,13 @@ public class ServletChannel implements Channel {
   private boolean valid;
   
   
+  /**
+   * Default constructor.
+   * @param req The http request <code>HttpServletRequest</code>.
+   * @param resp The response <code>HttpServletResponse</code>.
+   * @param os <code>ObjectSerializer</code> for objects serializing.
+   * @throws ServletException  In case of arguments error.
+   */
   public ServletChannel(HttpServletRequest req, HttpServletResponse resp, ObjectSerializer os) throws ServletException {
     if(req == null)
       throw new ServletException("Invalid HttpServletRequest: "+ req);

@@ -128,8 +128,7 @@ public class Invoker {
       throws MethodInvocationException, AuthenticationException {
     nullarg(RemoteMethod.class, rm);
     if(!container.contains(rm.objectName())) {
-      throw new MethodInvocationException("[Invoker.getObject( RemoteMethod )] "
-          + "Object not found {"+ rm.objectName()+ "}");
+      throw new MethodInvocationException("Object not found {"+ rm.objectName()+ "}");
     }
     return getObject(rm.objectName());
   }
@@ -223,8 +222,7 @@ public class Invoker {
           "Invoker not properly configured");
     
     if(target == null && mth.objectName() == null) {
-      throw new MethodInvocationException("[Invoker.invoke( RemoteMethod )] "
-          + "Invalid Target Object Name {"+ mth.objectName()+ "}");
+      throw new MethodInvocationException("Invalid Target Object Name {"+ mth.objectName()+ "}");
     }
     if(mth.objectName() != null) {
       target = getObject(mth);

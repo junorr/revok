@@ -22,9 +22,6 @@
 package us.pserver.revok.servlet;
 
 import com.jpower.rfl.Reflector;
-import us.pserver.log.Log;
-import us.pserver.log.LogFactory;
-import us.pserver.revok.server.RevokServer;
 
 /**
  *

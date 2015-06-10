@@ -45,7 +45,7 @@ import us.pserver.revok.protocol.JsonSerializer;
 import us.pserver.revok.protocol.ObjectSerializer;
 
 /**
- * Network HTTP object server for remoting method invocation.
+ * Network HTTP object server for remote method invocation.
  * 
  * @author Juno Roesler - juno.rr@gmail.com
  * @version 1.1 - 20150422
@@ -261,6 +261,7 @@ public class RevokServer extends AbstractServer {
   public RevokServer enableFileLogging(String path) {
     if(path != null && !path.trim().isEmpty()) {
       log = LogFactory.getSimpleLog(this.getClass(), Paths.get(path));
+      LogFactory.putCached("us.pserver.revok", log);
     }
     return this;
   }
@@ -276,8 +277,10 @@ public class RevokServer extends AbstractServer {
           log.outputsMap().entrySet().stream().filter(e->
               FileLogOutput.class.isAssignableFrom(
                   e.getValue().getClass())).findFirst();
-      if(flog.isPresent()) 
+      if(flog.isPresent()) {
         log.remove(flog.get().getKey());
+        LogFactory.putCached("us.pserver.revok", log);
+      }
     }
     else enableLogging();
     return this;

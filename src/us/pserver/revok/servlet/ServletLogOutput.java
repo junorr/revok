@@ -21,13 +21,10 @@
 
 package us.pserver.revok.servlet;
 
-import javax.servlet.GenericServlet;
 import javax.servlet.ServletContext;
-import us.pserver.log.LogFactory;
 import us.pserver.log.LogLevel;
 import us.pserver.log.internal.LogLevelManager;
 import us.pserver.log.output.LogOutput;
-import us.pserver.revok.server.RevokServer;
 
 /**
  *
@@ -44,7 +41,6 @@ public class ServletLogOutput implements LogOutput {
   public ServletLogOutput(ServletContext svt) {
     if(svt == null)
       throw new IllegalArgumentException("Invalid null GenericServlet");
-    LogFactory.getSimpleLog(RevokServer.class);
     scontext = svt;
     levels = new LogLevelManager();
   }

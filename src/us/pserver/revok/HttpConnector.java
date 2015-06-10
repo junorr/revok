@@ -100,9 +100,8 @@ public class HttpConnector {
   
   
   /**
-   * Receives connection port and address.
+   * Receives connection address and port <code>&lt;address&gt;:&lt;port&gt;</code>.
    * @param address Network address <code>String</code>.
-   * @param port Network port <code>int</code>.
    */
   public HttpConnector(String address) {
     this();
@@ -135,7 +134,7 @@ public class HttpConnector {
   
   
   /**
-   * Set network (http) address.
+   * Set network address and port <code>&lt;address&gt;:&lt;port&gt;</code>.
    * @param addr <code>String</code>.
    * @return This modified <code>HttpConnector</code> instance.
    */
@@ -175,7 +174,7 @@ public class HttpConnector {
 
 
   /**
-   * Return the network (http) address.
+   * Return the network address.
    * @return Network address <code>String</code>.
    */
   public String getAddress() {
@@ -183,23 +182,6 @@ public class HttpConnector {
   }
 
 
-  /**
-   * Set Network (http) address.
-   * @param address <code>String</code>
-   * @param port <code>int</code>
-   * @return This modified <code>HttpConnector</code> instance.
-   */
-  public HttpConnector setAddress(String address, int port) {
-    if(port <= 0)
-      return setAddress(address);
-    else {
-      if(address.endsWith(SLASH))
-        address = address.substring(0, address.length() -1);
-      return setAddress(address + COLON + String.valueOf(port));
-    }
-  }
-  
-  
   /**
    * Return the network protocol from address (i.e: <b>https://</b>localhost:8080/post/).
    * @return The protocol address part (i.e: <b>https://</b>localhost:8080/post/).

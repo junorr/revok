@@ -23,7 +23,6 @@ package us.pserver.revok.servlet;
 
 import us.pserver.revok.channel.ServletChannel;
 import com.jpower.rfl.Reflector;
-import java.util.Enumeration;
 import java.util.List;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -39,12 +38,13 @@ import us.pserver.revok.container.ObjectContainer;
 import us.pserver.revok.protocol.RunnableConnectionHandler;
 import us.pserver.revok.protocol.JsonSerializer;
 import us.pserver.revok.protocol.ObjectSerializer;
-import us.pserver.revok.server.RevokServer;
 
 /**
- *
+ * Servlet to be embeded in a servlet container software, 
+ * for handling Http RPC whitout the standalone <code>RevokServer</code>.
+ * 
  * @author Juno Roesler - juno.rr@gmail.com
- * @version 1.0 - 28/05/2015
+ * @version 1.0 - 2015-06
  */
 public class RevokServlet extends HttpServlet {
   
@@ -66,16 +66,10 @@ public class RevokServlet extends HttpServlet {
   private Log log;
   
   
-  public Class stringToClass(String str) {
-    try { 
-      return Class.forName(str); 
-    }
-    catch(ClassNotFoundException e) { 
-      return null; 
-    }
-  }
-  
-  
+  /**
+   * Read web.xml config file for custom ObjectSerializer class.
+   * @throws ServletException In case of error initializing the ObjectSerializer.
+   */
   private void initObjectSerializer() throws ServletException {
     log.debug("Init ObjectSerializer...");
     Reflector ref = new Reflector();
@@ -96,6 +90,10 @@ public class RevokServlet extends HttpServlet {
   }
   
   
+  /**
+   * Read web.xml config file for Objects class to be exposed for Http RPC.
+   * @throws ServletException In case of error initializing the Objects.
+   */
   private void initObjects() {
     log.debug("Init Objects...");
     String name = ObjectContainer.class.getName();
@@ -105,13 +103,19 @@ public class RevokServlet extends HttpServlet {
       return;
     }
     lso.forEach(p->{
-      log.debug("Adding configured object - {}: {}", p.getName(), p.getClassName());
+      log.debug("Adding configured object: {} = {}", p.getName(), p.getClassName());
       container.put(p.getName(), p.createObject());
     });
   }
   
   
-  private void initObjectContainer() throws ServletException {
+  /**
+   * Read web.xml config file for Credentials information or CredentialsSource custom class.
+   * Credentials can be writed under the key <code>us.pserver.revok.container.Credentials</code>
+   * and with format <code>&lt;user&gt;:&lt;password&gt;@&lt;namespace&gt;</code>.
+   * @throws ServletException In case of error initializing Credentials.
+   */
+  private void initCredentials() throws ServletException {
     log.debug("Init ObjectContainer...");
     if(util.hasParam(Credentials.class.getName())) {
       ServletCredentialsSource src = new ServletCredentialsSource(util);
@@ -139,13 +143,14 @@ public class RevokServlet extends HttpServlet {
   
   @Override
   public void init(ServletConfig config) throws ServletException {
-    log = LogFactory.getSimpleLog(RevokServer.class)
+    log = LogFactory.getSimpleLog(this.getClass())
         .put(ID_SERVLET_OUTPUT, 
             new ServletLogOutput(config.getServletContext()));
+    LogFactory.putCached("us.pserver.revok", log);
     log.debug("Init Servlet...");
     util = new ServletConfigUtil(config);
     this.initObjectSerializer();
-    this.initObjectContainer();
+    this.initCredentials();
     this.initObjects();
   }
   

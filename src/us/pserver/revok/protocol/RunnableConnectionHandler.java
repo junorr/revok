@@ -91,7 +91,7 @@ public class RunnableConnectionHandler implements Runnable {
     channel = ch;
     closed = false;
     container = cont;
-    log = LogFactory.getSimpleLog(RevokServer.class);
+    log = LogFactory.getSimpleLog(RunnableConnectionHandler.class);
   }
   
   
