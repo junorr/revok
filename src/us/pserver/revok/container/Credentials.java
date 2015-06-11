@@ -30,10 +30,11 @@ import static us.pserver.chk.Checker.nullstr;
 
 /**
  * The Credentials object encapsulates information 
- * about username and password for authentication 
- * with the server.
- * @author Juno Roesler - juno.rr@gmail.com
- * @version 1.1 - 20150422
+ * about username, password and namespace access for 
+ * authentication with the server.
+ * 
+ * @author Juno Roesler - juno@pserver.com
+ * @version 1.1 - 201506
  */
 public class Credentials {
 

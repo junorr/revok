@@ -27,9 +27,12 @@ import us.pserver.log.internal.LogLevelManager;
 import us.pserver.log.output.LogOutput;
 
 /**
- *
- * @author Juno Roesler - juno.rr@gmail.com
- * @version 1.0 - 05/06/2015
+ * Implements a <code>LogOutput</code> which
+ * redirects log messages to the <code>ServletContext.log</code> method.
+ * 
+ * @author Juno Roesler - juno@pserver.com
+ * @version 1.1 - 201506
+ * @see us.pserver.log.output.LogOutput
  */
 public class ServletLogOutput implements LogOutput {
   
@@ -38,6 +41,11 @@ public class ServletLogOutput implements LogOutput {
   private LogLevelManager levels;
   
   
+  /**
+   * Default constructor, receives the <code>ServletContext</code> object
+   * for redirecting log messages.
+   * @param svt The <code>ServletContext</code> object.
+   */
   public ServletLogOutput(ServletContext svt) {
     if(svt == null)
       throw new IllegalArgumentException("Invalid null GenericServlet");

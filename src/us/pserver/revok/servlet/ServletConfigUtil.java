@@ -28,15 +28,20 @@ import java.util.List;
 import javax.servlet.ServletConfig;
 
 /**
- *
- * @author Juno Roesler - juno.rr@gmail.com
- * @version 1.0 - 03/06/2015
+ * Utility class for reading web.xml config file.
+ * 
+ * @author Juno Roesler - juno@pserver.com
+ * @version 1.1 - 201506
  */
 public class ServletConfigUtil {
 
   private ServletConfig config;
   
   
+  /**
+   * Default constructor which receives the <code>ServletConfig</code> configuration object.
+   * @param sc The <code>ServletConfig</code> configuration object.
+   */
   public ServletConfigUtil(ServletConfig sc) {
     if(sc == null) 
       throw new IllegalArgumentException("Invalid ServletConfig: "+ sc);
@@ -44,11 +49,23 @@ public class ServletConfigUtil {
   }
   
   
+  /**
+   * Get the <code>ServletConfig</code> configuration object.
+   * @return The <code>ServletConfig</code> configuration object.
+   */
   public ServletConfig getServletConfig() {
     return config;
   }
   
   
+  /**
+   * Verifies if the <code>ServletConfig</code> contains an 
+   * init parameter with the specified name.
+   * @param name Name of the parameter to be verified.
+   * @return <code>true</code> if the <code>ServletConfig</code>
+   * has an init parameter with the specified name, 
+   * <code>false</code> otherwise
+   */
   public boolean hasParam(String name) {
     return name != null 
         && this.getServletConfig()
@@ -56,6 +73,12 @@ public class ServletConfigUtil {
   }
   
   
+  /**
+   * Return the value of an init parameter as <code>java.util.List&lt;String&gt;</code>,
+   * where this value is a String, colon separated parameters (i.e: param1,param2,param3...).
+   * @param name Name of the init parameter.
+   * @return A List with the parameters.
+   */
   public List<String> getListParam(String name) {
     if(!hasParam(name)) return Collections.EMPTY_LIST;
     ArrayList<String> ls = new ArrayList<>();
@@ -70,6 +93,14 @@ public class ServletConfigUtil {
   }
   
   
+  /**
+   * Return the value of an init parameter converted as 
+   * <code>java.util.List&lt;ServletObjectParam&gt;</code>,
+   * where this value is a String, colon separated parameters 
+   * (i.e: param1,param2,param3...).
+   * @param name Name of the init parameter.
+   * @return A List with the parameters.
+   */
   public List<ServletObjectParam> getObjectParamList(String name) {
     if(!hasParam(name)) return Collections.EMPTY_LIST;
     ArrayList<ServletObjectParam> ls = new ArrayList<>();
@@ -84,6 +115,11 @@ public class ServletConfigUtil {
   }
   
   
+  /**
+   * Get the value of an init parameter.
+   * @param name Name of the init parameter.
+   * @return String value of the init parameter.
+   */
   public String getParam(String name) {
     return this.getServletConfig().getInitParameter(name);
   }

@@ -28,8 +28,8 @@ import java.io.IOException;
 /**
  * Channel interface for network communication.
  * 
- * @author Juno Roesler - juno.rr@gmail.com
- * @version 1.0 - 21/01/2014
+ * @author Juno Roesler - juno@pserver.com
+ * @version 1.1 - 201506
  */
 public interface Channel {
   

@@ -28,10 +28,10 @@ import us.pserver.revok.protocol.ObjectSerializer;
 /**
  * Interface for a Channel factory.
  * 
- * @author Juno Roesler - juno.rr@gmail.com
- * @version 1.0 - 2014-01-21
- * @param <T> Tipo de argumento para criação 
- * de <code>Channel</code>.
+ * @author Juno Roesler - juno@pserver.com
+ * @version 1.1 - 201506
+ * 
+ * @param <T> Argument type for creating the <code>Channel</code>.
  */
 public interface ChannelFactory<T> {
   

@@ -29,8 +29,8 @@ import us.pserver.cdr.StringByteConverter;
 /**
  * An object serializer for (de)serialize objects to/from JSON format.
  * 
- * @author Juno Roesler - juno.rr@gmail.com
- * @version 1.0 - 11/05/2015
+ * @author Juno Roesler - juno@pserver.com
+ * @version 1.1 - 201506
  */
 public class JsonSerializer implements ObjectSerializer {
 

@@ -28,8 +28,8 @@ import java.io.InputStream;
  * <code>Transport</code> is an object for
  * transmitting content over a communication channel.
  * 
- * @author Juno Roesler - juno.rr@gmail.com
- * @version 1.0 - 21/01/2014
+ * @author Juno Roesler - juno@pserver.com
+ * @version 1.1 - 201506
  */
 public class Transport {
   

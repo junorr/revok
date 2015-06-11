@@ -26,8 +26,8 @@ import java.io.IOException;
 /**
  * Interface defining an object converter to and from byte array.
  * 
- * @author Juno Roesler - juno.rr@gmail.com
- * @version 1.0 - 11/05/2015
+ * @author Juno Roesler - juno@pserver.com
+ * @version 1.1 - 201506
  */
 public interface ObjectSerializer {
 

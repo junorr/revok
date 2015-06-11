@@ -39,7 +39,7 @@ import us.pserver.log.output.LogOutput;
 import us.pserver.revok.HttpConnector;
 import us.pserver.revok.container.ObjectContainer;
 import us.pserver.revok.factory.ChannelFactory;
-import us.pserver.revok.factory.HttpFactoryBuilder;
+import us.pserver.revok.factory.ChannelFactoryBuilder;
 import us.pserver.revok.protocol.RunnableConnectionHandler;
 import us.pserver.revok.protocol.JsonSerializer;
 import us.pserver.revok.protocol.ObjectSerializer;
@@ -47,8 +47,8 @@ import us.pserver.revok.protocol.ObjectSerializer;
 /**
  * Network HTTP object server for remote method invocation.
  * 
- * @author Juno Roesler - juno.rr@gmail.com
- * @version 1.1 - 20150422
+ * @author Juno Roesler - juno@pserver.com
+ * @version 1.1 - 201506
  */
 public class RevokServer extends AbstractServer {
   
@@ -100,7 +100,7 @@ public class RevokServer extends AbstractServer {
     this.enableLogging();
     cont.put(ObjectContainer.NAMESPACE_GLOBAL, SERVER_KEY, this);
     con = new HttpConnector();
-    factory = HttpFactoryBuilder.builder()
+    factory = ChannelFactoryBuilder.builder()
         .enableGZipCompression()
         .enableCryptography()
         .createHttpResponseChannelFactory();

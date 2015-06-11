@@ -27,8 +27,9 @@ import static us.pserver.chk.Checker.nullarg;
 /**
  * Execute authentications of Credentials objects 
  * against a CredentialsSource database.
- * @author Juno Roesler - juno.rr@gmail.com
- * @version 1.1 - 20150422
+ * 
+ * @author Juno Roesler - juno@pserver.com
+ * @version 1.1 - 201506
  */
 public class Authenticator {
 

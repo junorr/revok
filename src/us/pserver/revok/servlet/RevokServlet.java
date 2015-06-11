@@ -40,11 +40,11 @@ import us.pserver.revok.protocol.JsonSerializer;
 import us.pserver.revok.protocol.ObjectSerializer;
 
 /**
- * Servlet to be embeded in a servlet container software, 
- * for handling Http RPC whitout the standalone <code>RevokServer</code>.
+ * Servlet to be embeded in a servlet container, for handling 
+ * Http RPC instead the standalone server <code>RevokServer</code>.
  * 
- * @author Juno Roesler - juno.rr@gmail.com
- * @version 1.0 - 2015-06
+ * @author Juno Roesler - juno@pserver.com
+ * @version 1.1 - 201506
  */
 public class RevokServlet extends HttpServlet {
   

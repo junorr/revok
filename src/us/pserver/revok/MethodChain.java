@@ -28,8 +28,9 @@ import java.util.List;
 /**
  * Represents a list of methods wich will be invoked in sequence 
  * (i.e.: someobj.toString().length() ).
- * @author Juno Roesler - juno.rr@gmail.com
- * @version 1.0 - 13/08/2014
+ * 
+ * @author Juno Roesler - juno@pserver.com
+ * @version 1.1 - 201506
  */
 public class MethodChain {
 

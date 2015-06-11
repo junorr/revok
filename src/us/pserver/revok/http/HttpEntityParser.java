@@ -35,10 +35,10 @@ import us.pserver.streams.StreamResult;
 import us.pserver.streams.StreamUtils;
 
 /**
- * Parser for reading and converting <code>HttpEntity</code> content.
+ * Parser for reading and converting Http message body in the RPC info.
  * 
- * @author Juno Roesler - juno.rr@gmail.com
- * @version 1.0 - 14/04/2015
+ * @author Juno Roesler - juno@pserver.com
+ * @version 1.1 - 201506
  */
 public class HttpEntityParser {
 

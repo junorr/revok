@@ -22,20 +22,28 @@
 package us.pserver.revok.servlet;
 
 import java.util.List;
-import javax.servlet.ServletConfig;
 import us.pserver.revok.container.Credentials;
 import us.pserver.revok.container.ListCredentialsSource;
 
 /**
- *
- * @author Juno Roesler - juno.rr@gmail.com
- * @version 1.0 - 03/06/2015
+ * Implements a <code>CredentialsSource</code> where
+ * the credentials are readed from the web.xml config file
+ * as servlet init paramaters.
+ * 
+ * @author Juno Roesler - juno@pserver.com
+ * @version 1.1 - 201506
  */
 public class ServletCredentialsSource extends ListCredentialsSource {
 
   private ServletConfigUtil util;
   
   
+  /**
+   * Default constructor, receives the <code>ServletConfigUtil</code> 
+   * utility object.
+   * @param sc The <code>ServletConfigUtil</code> 
+   * utility object.
+   */
   public ServletCredentialsSource(ServletConfigUtil sc) {
     super();
     util = sc;
@@ -43,6 +51,10 @@ public class ServletCredentialsSource extends ListCredentialsSource {
   }
   
   
+  /**
+   * Init this <code>CredentialsSource</code> 
+   * reading the web.xml config file.
+   */
   private void init() {
     String crdname = Credentials.class.getName();
     List<String> ls = util.getListParam(crdname);
@@ -58,6 +70,12 @@ public class ServletCredentialsSource extends ListCredentialsSource {
   }
   
   
+  /**
+   * Parse a String in a <code>Credentials</code> object.
+   * @param str The string to be parsed.
+   * @param last Last parsed Credentials.
+   * @return The parsed <code>Credentials</code> object.
+   */
   private Credentials parseCreds(String str, Credentials last) {
     if(str == null 
         || (!str.contains(":") && last == null) 

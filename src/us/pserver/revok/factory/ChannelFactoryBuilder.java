@@ -32,10 +32,10 @@ import us.pserver.revok.protocol.ObjectSerializer;
 /**
  * Default builder of channels factory.
  * 
- * @author Juno Roesler - juno.rr@gmail.com
- * @version 1.1 - 20150422
+ * @author Juno Roesler - juno@pserver.com
+ * @version 1.1 - 201506
  */
-public class HttpFactoryBuilder {
+public class ChannelFactoryBuilder {
   
   private boolean gzip, crypt;
   
@@ -45,7 +45,7 @@ public class HttpFactoryBuilder {
   /**
    * Default constructor without arguments.
    */
-  public HttpFactoryBuilder() {
+  public ChannelFactoryBuilder() {
     gzip = false; crypt = false;
     algo = CryptAlgorithm.AES_CBC_PKCS5;
   }
@@ -55,7 +55,7 @@ public class HttpFactoryBuilder {
    * Configure GZIP compression on the factory.
    * @return This instance of HttpFactoryProvider.
    */
-  public HttpFactoryBuilder enableGZipCompression() {
+  public ChannelFactoryBuilder enableGZipCompression() {
     gzip = true;
     return this;
   }
@@ -65,7 +65,7 @@ public class HttpFactoryBuilder {
    * Disable GZIP compression on the factory.
    * @return This instance of HttpFactoryProvider.
    */
-  public HttpFactoryBuilder disableGZipCompression() {
+  public ChannelFactoryBuilder disableGZipCompression() {
     gzip = false;
     return this;
   }
@@ -75,7 +75,7 @@ public class HttpFactoryBuilder {
    * Configure cryptography on the factory.
    * @return This instance of HttpFactoryProvider.
    */
-  public HttpFactoryBuilder enableCryptography() {
+  public ChannelFactoryBuilder enableCryptography() {
     crypt = true;
     return this;
   }
@@ -86,7 +86,7 @@ public class HttpFactoryBuilder {
    * @param algo Cryptography algorithm.
    * @return This instance of HttpFactoryProvider.
    */
-  public HttpFactoryBuilder enableCryptography(CryptAlgorithm algo) {
+  public ChannelFactoryBuilder enableCryptography(CryptAlgorithm algo) {
     if(algo != null) this.algo = algo;
     crypt = true;
     return this;
@@ -97,7 +97,7 @@ public class HttpFactoryBuilder {
    * Disable cryptography on the factory.
    * @return This instance of HttpFactoryProvider.
    */
-  public HttpFactoryBuilder disableCryptography() {
+  public ChannelFactoryBuilder disableCryptography() {
     crypt = false;
     return this;
   }
@@ -107,8 +107,8 @@ public class HttpFactoryBuilder {
    * Return a new instance of HttpFactoryBuilder.
    * @return A new instance of HttpFactoryBuilder.
    */
-  public static HttpFactoryBuilder builder() {
-    return new HttpFactoryBuilder();
+  public static ChannelFactoryBuilder builder() {
+    return new ChannelFactoryBuilder();
   }
   
   

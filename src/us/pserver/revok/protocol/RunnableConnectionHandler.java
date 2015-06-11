@@ -37,8 +37,11 @@ import us.pserver.revok.reflect.Invoker;
 import us.pserver.revok.server.RevokServer;
 
 /**
- * <code>HttpConnectionHandler</code> handle client requests 
+ * <code>RunnableConnectionHandler</code> handle client requests 
  * for remote methods invocation.
+ * 
+ * @author Juno Roesler - juno@pserver.com
+ * @version 1.1 - 201506
  */
 public class RunnableConnectionHandler implements Runnable {
   

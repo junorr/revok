@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import static us.pserver.chk.Checker.nullarg;
-import us.pserver.revok.server.RevokServer;
 
 
 /**
@@ -38,8 +37,8 @@ import us.pserver.revok.server.RevokServer;
  * <code>ObjectContainer</code> is secure for 
  * multithreaded environments.
  * 
- * @author Juno Roesler - juno.rr@gmail.com
- * @version 1.0 - 21/01/2014
+ * @author Juno Roesler - juno@pserver.com
+ * @version 1.1 - 201506
  */
 public class ObjectContainer {
   

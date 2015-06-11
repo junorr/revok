@@ -29,8 +29,9 @@ import static us.pserver.chk.Checker.nullstr;
 
 /**
  * A CredentialsSource based on a single Credentials object.
- * @author Juno Roesler - juno.rr@gmail.com
- * @version 1.1 - 20150422
+ * 
+ * @author Juno Roesler - juno@pserver.com
+ * @version 1.1 - 201506
  */
 public class SingleCredentialsSource implements CredentialsSource {
 

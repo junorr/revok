@@ -25,12 +25,12 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * A fake implementation of InputStream wich does nothing (what?).
+ * A fake implementation of InputStream which does nothing (what?).
  * This is used for transfering information about method arguments 
  * over the wire, but not the InputStream itself.
  * 
- * @author Juno Roesler - juno.rr@gmail.com
- * @version 1.1 - 20150422
+ * @author Juno Roesler - juno@pserver.com
+ * @version 1.1 - 201506
  */
 public class FakeInputStreamRef extends InputStream {
 
@@ -39,7 +39,11 @@ public class FakeInputStreamRef extends InputStream {
    */
   public FakeInputStreamRef() {}
 
-  
+  /**
+   * Allways return <code>-1</code>.
+   * @return <code>-1</code>.
+   * @throws IOException Never thrown.
+   */
   @Override
   public int read() throws IOException {
     return -1;

@@ -33,8 +33,6 @@ import org.apache.http.HttpClientConnection;
 import org.apache.http.impl.DefaultBHttpClientConnection;
 import us.pserver.cdr.b64.Base64StringCoder;
 import us.pserver.revok.http.HttpConsts;
-import static us.pserver.revok.http.HttpConsts.COLON;
-import static us.pserver.revok.http.HttpConsts.SLASH;
 
 
 /**
@@ -44,8 +42,8 @@ import static us.pserver.revok.http.HttpConsts.SLASH;
  * <code>ServerSocket</code>, <code>InetAddress</code>
  * and <code>HttpClientConnection</code> creation.
  * 
- * @author Juno Roesler - juno.rr@gmail.com
- * @version 1.1 - 20150422
+ * @author Juno Roesler - juno@pserver.com
+ * @version 1.1 - 201506
  */
 public class HttpConnector {
   
@@ -106,8 +104,7 @@ public class HttpConnector {
   public HttpConnector(String address) {
     this();
     if(address == null)
-      throw new IllegalArgumentException("[HttpConnector( String, int )] "
-          + "Invalid address ["+ address+ "]");
+      throw new IllegalArgumentException("Invalid address ["+ address+ "]");
     proto = HttpConsts.HTTP;
     path = null;
     proxyAddr = null;

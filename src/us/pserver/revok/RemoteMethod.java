@@ -33,8 +33,8 @@ import us.pserver.revok.reflect.Invoker;
  * Represents a remote method to be invoked in a remote object.
  * Contains informations about method name, object name, arguments and types.
  * 
- * @author Juno Roesler - juno.rr@gmail.com
- * @version 1.1 - 20150422
+ * @author Juno Roesler - juno@pserver.com
+ * @version 1.1 - 201506
  */
 public class RemoteMethod {
   

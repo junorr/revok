@@ -25,8 +25,8 @@ package us.pserver.revok;
 /**
  * Exception thrown in case of method invocation error.
  * 
- * @author Juno Roesler - juno.rr@gmail.com
- * @version 1.0 - 2014-01-21
+ * @author Juno Roesler - juno@pserver.com
+ * @version 1.1 - 201506
  */
 public class MethodInvocationException extends Exception {
   

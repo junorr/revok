@@ -28,7 +28,7 @@ import us.pserver.revok.channel.Channel;
 import us.pserver.revok.protocol.Transport;
 import us.pserver.revok.container.Credentials;
 import us.pserver.revok.factory.ChannelFactory;
-import us.pserver.revok.factory.HttpFactoryBuilder;
+import us.pserver.revok.factory.ChannelFactoryBuilder;
 import us.pserver.revok.protocol.JsonSerializer;
 import us.pserver.revok.protocol.ObjectSerializer;
 import us.pserver.revok.proxy.RemoteInvocationHandler;
@@ -37,8 +37,8 @@ import us.pserver.revok.protocol.FakeInputStreamRef;
 /**
  * Represents a remote object for methods invocation.
  * 
- * @author Juno Roesler - juno.rr@gmail.com
- * @version 1.0 - 11/11/2013
+ * @author Juno Roesler - juno@pserver.com
+ * @version 1.1 - 201506
  */
 public class RemoteObject {
   
@@ -59,7 +59,7 @@ public class RemoteObject {
    */
   public RemoteObject() {
     net = new HttpConnector();
-    factory = HttpFactoryBuilder.builder()
+    factory = ChannelFactoryBuilder.builder()
         .enableCryptography()
         .enableGZipCompression()
         .createHttpRequestChannelFactory();
@@ -80,7 +80,7 @@ public class RemoteObject {
       throw new IllegalArgumentException(
           "Invalid NetConnector ["+ con+ "]");
     net = con;
-    factory = HttpFactoryBuilder.builder()
+    factory = ChannelFactoryBuilder.builder()
         .enableCryptography()
         .enableGZipCompression()
         .createHttpRequestChannelFactory();

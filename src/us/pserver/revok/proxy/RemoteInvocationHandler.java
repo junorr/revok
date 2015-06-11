@@ -29,8 +29,8 @@ import us.pserver.revok.RemoteObject;
 /**
  * Invocation handler used by the Proxy remote object.
  * 
- * @author Juno Roesler - juno@pserver.us
- * @version 1.1 - 20150422
+ * @author Juno Roesler - juno@pserver.com
+ * @version 1.1 - 201506
  * @see us.pserver.revok.RemoteObject#createRemoteObject(java.lang.String, java.lang.Class) 
  */
 public class RemoteInvocationHandler implements InvocationHandler {

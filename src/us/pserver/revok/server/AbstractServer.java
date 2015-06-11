@@ -22,14 +22,13 @@
 package us.pserver.revok.server;
 
 import us.pserver.revok.container.ObjectContainer;
-import us.pserver.revok.server.Server;
 
 
 /**
  * Abstract class implementing basic object server functions.
  * 
- * @author Juno Roesler - juno.rr@gmail.com
- * @version 1.0 - 21/01/2014
+ * @author Juno Roesler - juno@pserver.com
+ * @version 1.1 - 201506
  * @see us.pserver.revok.server.Server
  */
 public abstract class AbstractServer implements Server {

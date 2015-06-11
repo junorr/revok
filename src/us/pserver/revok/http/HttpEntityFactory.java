@@ -39,11 +39,11 @@ import us.pserver.streams.IO;
 import us.pserver.streams.MixedWriteBuffer;
 
 /**
- * A factory for Http entities embedded
+ * A factory for embed Http RPC info
  * in the Http message body.
  * 
- * @author Juno Roesler - juno.rr@gmail.com
- * @version 1.0 - 08/04/2015
+ * @author Juno Roesler - juno@pserver.com
+ * @version 1.1 - 201506
  */
 public class HttpEntityFactory {
 

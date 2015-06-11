@@ -56,8 +56,8 @@ import us.pserver.revok.protocol.ObjectSerializer;
  * classes of Revok project, is the high performance 
  * Apache Http Core 4.4.1 library.
  * 
- * @author Juno Roesler - juno.rr@gmail.com
- * @version 1.0 - 21/01/2014
+ * @author Juno Roesler - juno@pserver.com
+ * @version 1.1 - 201506
  */
 public class HttpResponseChannel implements Channel {
   

@@ -24,9 +24,14 @@ package us.pserver.revok.servlet;
 import com.jpower.rfl.Reflector;
 
 /**
- *
- * @author Juno Roesler - juno.rr@gmail.com
- * @version 1.0 - 03/06/2015
+ * Represents an object to be exposed for RPC calls on the <code>RevokServlet</code>,
+ * where the object namespace and class are readed from the web.xml config file.
+ * The objects configured in the web.xml file, must follow this pattern: 
+ * <code>&lt;name/namespace&gt;.&lt;obj-name&gt;=&lt;full-class-name&gt;</code>.
+ * For example: <code>global.ObjectContainer=us.pserver.revok.container.ObjectContainer</code>.
+ * 
+ * @author Juno Roesler - juno@pserver.com
+ * @version 1.1 - 201506
  */
 public class ServletObjectParam {
   
@@ -37,18 +42,32 @@ public class ServletObjectParam {
   private String cname;
   
   
+  /**
+   * Constructor without arguments.
+   */
   public ServletObjectParam() {
     name = null;
     cname = null;
   }
   
   
+  /**
+   * Constructor which receives the name/namespace and the full class name.
+   * @param name Name/namespace.
+   * @param className Full class name.
+   */
   public ServletObjectParam(String name, String className) {
     this.name = name;
     this.cname = className;
   }
   
   
+  /**
+   * Parse a string in pattern <code>&lt;name/namespace&gt;.&lt;obj-name&gt;=&lt;full-class-name&gt;</code>,
+   * into a <code>ServletObjectParam</code> object.
+   * @param str A string in pattern <code>&lt;name/namespace&gt;.&lt;obj-name&gt;=&lt;full-class-name&gt;</code>.
+   * @return The parsed <code>ServletObjectParam</code> object or <code>null</code>.
+   */
   public static ServletObjectParam parse(String str) {
     if(str == null) return null;
     str = str.replace("\n", "").replace("\r", "").replace("\t", "");
@@ -59,11 +78,19 @@ public class ServletObjectParam {
   }
   
   
+  /**
+   * Get the name/namespace of the object.
+   * @return The name/namespace of the object.
+   */
   public String getName() {
     return name;
   }
   
   
+  /**
+   * Set the name/namespace of the object.
+   * @param str The name/namespace of the object.
+   */
   public void setName(String str) {
     name = str;
   }

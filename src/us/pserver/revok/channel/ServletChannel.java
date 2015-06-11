@@ -36,10 +36,11 @@ import us.pserver.revok.protocol.Transport;
 import us.pserver.streams.IO;
 
 /**
- * Network channel for communication throught HttpServletRequest and HttpServletResponse.
+ * Network channel for communication throught 
+ * HttpServletRequest and HttpServletResponse.
  * 
- * @author Juno Roesler - juno.rr@gmail.com
- * @version 1.0 - 05/06/2015
+ * @author Juno Roesler - juno@pserver.com
+ * @version 1.1 - 201506
  */
 public class ServletChannel implements Channel {
   

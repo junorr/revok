@@ -27,8 +27,8 @@ import java.util.Objects;
  * Encapsulates method invocation results like
  * success, exceptions and method returned object.
  * 
- * @author Juno Roesler - juno.rr@gmail.com
- * @version 1.0 - 11/11/2013
+ * @author Juno Roesler - juno@pserver.com
+ * @version 1.1 - 201506
  */
 public class OpResult {
 
