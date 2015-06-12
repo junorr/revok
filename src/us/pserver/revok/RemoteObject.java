@@ -233,24 +233,20 @@ public class RemoteObject {
   
   
   /**
-   * Create a Proxy instance of the remote object represented by the interface Class passed.
+   * Create a Proxy instance of the remote object represented by the specified interface.
    * Any method invocation in the returned proxy object, will be invoked remotly in the real object on server side.
    * @param <T> The type of the Proxy Object (same of the Class interface argument).
    * @param namespace The namespace on the server where is stored the remote instance, or the [namespace].[objectname].
-   * @param interf Class of Interface representation
+   * @param interfac Class of the Interface.
    * @return The Proxy object created.
    */
-  public <T> T createRemoteObject(String namespace, Class interf) {
+  public <T> T createRemoteObject(String namespace, Class interfac) {
     if(namespace == null || namespace.trim().isEmpty())
-      throw new IllegalArgumentException(
-          "RemoteObject.createRemoteObject( Class, String )] "
-              + "Invalid Class {"+ interf+ "}");
-    if(interf == null)
-      throw new IllegalArgumentException(
-          "RemoteObject.createRemoteObject( Class, String )] "
-              + "Invalid Class {"+ interf+ "}");
+      throw new IllegalArgumentException("Invalid Class {"+ interfac+ "}");
+    if(interfac == null)
+      throw new IllegalArgumentException("Invalid Class {"+ interfac+ "}");
     return (T) Proxy.newProxyInstance(
-        interf.getClassLoader(), new Class[]{interf}, 
+        interfac.getClassLoader(), new Class[]{interfac}, 
         new RemoteInvocationHandler(this, namespace));
   }
   

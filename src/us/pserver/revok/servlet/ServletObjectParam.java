@@ -96,16 +96,28 @@ public class ServletObjectParam {
   }
   
   
+  /**
+   * Get the class name of the configured object.
+   * @return The class name of the configured object.
+   */
   public String getClassName() {
     return cname;
   }
   
   
+  /**
+   * Set the class name of the configured object.
+   * @param str The class name of the configured object.
+   */
   public void setClassName(String str) {
     cname = str;
   }
   
-  
+
+  /**
+   * Get the class of the object from the class name string.
+   * @return The class from the class name string.
+   */
   public Class getObjectClass() {
     try {
       return Class.forName(cname);
@@ -115,6 +127,11 @@ public class ServletObjectParam {
   }
   
   
+  /**
+   * Create the configured object from the class name 
+   * string (It must be a no args constructor).
+   * @return The created configured object.
+   */
   public Object createObject() {
     return new Reflector().onClass(cname).create();
   }

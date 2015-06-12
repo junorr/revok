@@ -30,9 +30,10 @@ import us.pserver.revok.protocol.JsonSerializer;
 import us.pserver.revok.server.RevokServer;
 
 /**
- *
- * @author Juno Roesler - juno.rr@gmail.com
- * @version 1.0 - 17/04/2015
+ * Test class starting the standalone <code>RevokServer</code>.
+ * 
+ * @author Juno Roesler - juno@pserver.com
+ * @version 1.1 - 201506
  */
 public class TestRevokServer {
 

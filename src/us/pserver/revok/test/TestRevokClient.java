@@ -35,9 +35,10 @@ import us.pserver.revok.server.Server;
 import us.pserver.streams.IO;
 
 /**
- *
- * @author Juno Roesler - juno.rr@gmail.com
- * @version 1.0 - 17/04/2015
+ * Test class for revok client making remote method calls.
+ * 
+ * @author Juno Roesler - juno@pserver.com
+ * @version 1.1 - 201506
  */
 public class TestRevokClient {
 

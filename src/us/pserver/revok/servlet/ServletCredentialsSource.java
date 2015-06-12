@@ -29,6 +29,12 @@ import us.pserver.revok.container.ListCredentialsSource;
  * Implements a <code>CredentialsSource</code> where
  * the credentials are readed from the web.xml config file
  * as servlet init paramaters.
+ * The format of credentials accepted by the 
+ * <code>ServletCredentialsSource</code> is: 
+ * <code>&lt;username&gt;:&lt;password&gt;@&lt;name/namespace&gt;</code> 
+ * (i.e: <code>juno:1234@global</code>). 
+ * Multiples access can be writed without repeating username 
+ * and password as follows: <code>juno:1234@global, @io, @calc</code>
  * 
  * @author Juno Roesler - juno@pserver.com
  * @version 1.1 - 201506
