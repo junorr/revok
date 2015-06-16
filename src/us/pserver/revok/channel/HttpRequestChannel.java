@@ -276,7 +276,7 @@ public class HttpRequestChannel implements Channel {
       key = CryptKey.createRandomKey(algo);
       fac.enableCryptCoder(key);
     }
-    fac.put(trp.getWriteVersion());
+    fac.put(trp.createWriteVersion());
     if(trp.hasContentEmbedded())
       fac.put(trp.getInputStream());
     

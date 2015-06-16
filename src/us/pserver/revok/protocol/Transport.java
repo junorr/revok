@@ -78,7 +78,7 @@ public class Transport {
    * @return A cloned <code>Transport</code> object,
    * properly formatted for channel communication.
    */
-  public Transport getWriteVersion() {
+  public Transport createWriteVersion() {
     Transport t = new Transport();
     t.object = object;
     t.hasContentEmbedded = hasContentEmbedded;

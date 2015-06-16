@@ -209,7 +209,7 @@ public class HttpResponseChannel implements Channel {
     HttpEntityFactory fac = HttpEntityFactory.instance(serial);
     if(gzip) fac.enableGZipCoder();
     if(key != null) fac.enableCryptCoder(key);
-    fac.put(trp.getWriteVersion());
+    fac.put(trp.createWriteVersion());
     if(trp.getInputStream() != null) {
       fac.put(trp.getInputStream());
     }

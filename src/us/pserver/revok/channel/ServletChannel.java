@@ -97,7 +97,7 @@ public class ServletChannel implements Channel {
     if(key != null) fact.enableCryptCoder(key);
     if(trp.hasContentEmbedded())
       fact.put(trp.getInputStream());
-    fact.put(trp.getWriteVersion());
+    fact.put(trp.createWriteVersion());
     InputStream inresp = fact.createStream();
     output = response.getOutputStream();
     IO.tc(inresp, output);
