@@ -3,9 +3,21 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/storage/java/revok/src/us/pserver/revok/RemoteMethod.java</file>
-            <file>file:/storage/java/revok/src/us/pserver/revok/protocol/Transport.java</file>
-            <file>file:/storage/java/revok/src/us/pserver/revok/OpResult.java</file>
+            <file>file:/storage/java/revok/src/us/pserver/revok/server/AbstractServer.java</file>
+            <file>file:/storage/java/revok/src/us/pserver/revok/server/Server.java</file>
+            <file>file:/storage/java/revok/src/us/pserver/revok/test/Calculator.java</file>
+            <file>file:/storage/java/revok/src/us/pserver/revok/server/RevokServer.java</file>
+            <file>file:/storage/java/revok/src/us/pserver/revok/protocol/RunnableConnectionHandler.java</file>
+            <file>file:/storage/java/revok/src/us/pserver/revok/test/TestRevokClient.java</file>
+            <file>file:/storage/java/revok/src/us/pserver/revok/servlet/ServletConfigUtil.java</file>
+            <file>file:/storage/java/revok/src/us/pserver/revok/servlet/ServletObjectParam.java</file>
+            <file>file:/storage/java/revok/src/us/pserver/revok/http/HttpContentFactory.java</file>
+            <file>file:/storage/java/revok/src/us/pserver/revok/servlet/RevokServlet.java</file>
+            <file>file:/storage/java/revok/src/us/pserver/revok/RemoteObject.java</file>
+            <file>file:/storage/java/revok/src/us/pserver/revok/channel/HttpRequestChannel.java</file>
+            <file>file:/storage/java/revok/src/us/pserver/revok/servlet/ServletLogOutput.java</file>
+            <file>file:/storage/java/revok/src/us/pserver/revok/factory/ChannelFactory.java</file>
+            <file>file:/storage/java/revok/src/us/pserver/revok/HttpConnector.java</file>
         </group>
     </open-files>
 </project-private>

@@ -24,6 +24,8 @@ package us.pserver.revok.http;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.LinkedList;
+import java.util.List;
 import org.apache.http.Consts;
 import org.apache.http.HttpEntity;
 import org.apache.http.entity.ContentType;
@@ -35,9 +37,10 @@ import us.pserver.cdr.crypt.CryptKey;
 import us.pserver.revok.protocol.JsonSerializer;
 import us.pserver.revok.protocol.ObjectSerializer;
 import us.pserver.revok.protocol.XmlSerializer;
+import us.pserver.streams.CoderType;
+import us.pserver.streams.EncoderInputStream;
+import us.pserver.streams.FunnelInputStream;
 import us.pserver.streams.IO;
-import us.pserver.streams.MixedWriteBuffer;
-import us.pserver.streams.StreamCoderFactory;
 
 /**
  * A factory for embed Http RPC info
@@ -60,7 +63,11 @@ public class HttpContentFactory {
           "application/x-java-rob", Consts.UTF_8);
   
   
-  private StreamCoderFactory sfact;
+  private EncoderInputStream encoding;
+  
+  private FunnelInputStream funnel;
+  
+  private List<CoderType> coders;
   
   private final StringByteConverter scv;
   
@@ -83,7 +90,7 @@ public class HttpContentFactory {
     if(type == null)
       type = TYPE_X_JAVA_ROB;
     this.type = type;
-    sfact = StreamCoderFactory.getNew();
+    coders = new LinkedList<>();
     scv = new StringByteConverter();
     key = null;
     obj = null;
@@ -202,8 +209,9 @@ public class HttpContentFactory {
    */
   public HttpContentFactory enableCryptCoder(CryptKey key) {
     if(key != null) {
-      sfact.setCryptCoderEnabled(true, key);
       this.key = key;
+      if(!coders.contains(CoderType.CRYPT))
+        coders.add(CoderType.CRYPT);
     }
     return this;
   }
@@ -215,7 +223,7 @@ public class HttpContentFactory {
    * @return This modified <code>HttpEntityFactory</code> instance.
    */
   public HttpContentFactory disableAllCoders() {
-    sfact.clearCoders();
+    coders.clear();
     return this;
   }
   
@@ -226,7 +234,7 @@ public class HttpContentFactory {
    * @return This modified <code>HttpEntityFactory</code> instance.
    */
   public HttpContentFactory disableCryptCoder() {
-    sfact.setCryptCoderEnabled(false, null);
+    coders.remove(CoderType.CRYPT);
     return this;
   }
   
@@ -237,7 +245,8 @@ public class HttpContentFactory {
    * @return This modified <code>HttpEntityFactory</code> instance.
    */
   public HttpContentFactory enableGZipCoder() {
-    sfact.setGZipCoderEnabled(true);
+    if(!coders.contains(CoderType.GZIP))
+      coders.add(CoderType.GZIP);
     return this;
   }
   
@@ -248,7 +257,7 @@ public class HttpContentFactory {
    * @return This modified <code>HttpEntityFactory</code> instance.
    */
   public HttpContentFactory disableGZipCoder() {
-    sfact.setGZipCoderEnabled(false);
+    coders.remove(CoderType.GZIP);
     return this;
   }
   
@@ -259,7 +268,8 @@ public class HttpContentFactory {
    * @return This modified <code>HttpEntityFactory</code> instance.
    */
   public HttpContentFactory enableBase64Coder() {
-    sfact.setBase64CoderEnabled(true);
+    if(!coders.contains(CoderType.BASE64))
+      coders.add(CoderType.BASE64);
     return this;
   }
   
@@ -270,7 +280,7 @@ public class HttpContentFactory {
    * @return This modified <code>HttpEntityFactory</code> instance.
    */
   public HttpContentFactory disableBase64Coder() {
-    sfact.setBase64CoderEnabled(false);
+    coders.remove(CoderType.BASE64);
     return this;
   }
   
@@ -323,7 +333,6 @@ public class HttpContentFactory {
   private void writeObject(OutputStream os) throws IOException {
     if(os == null) return;
     if(obj != null) {
-      buffer.write(scv.convert(XmlConsts.START_CONTENT));
       os.write(scv.convert(XmlConsts.START_ROB));
       os.write(serial.toBytes(obj));
       os.write(scv.convert(XmlConsts.END_ROB));
