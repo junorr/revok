@@ -40,9 +40,10 @@ public class TestRevokServer {
   public static void main(String[] args) {
     HttpConnector hc = new HttpConnector("0.0.0.0:9995");
     ObjectContainer cont = new ObjectContainer(
-        new Authenticator( new SingleCredentialsSource(
-            new Credentials("juno", "1234".getBytes())
-                .addAccess("*"))));
+        //new Authenticator( new SingleCredentialsSource(
+          //  new Credentials("juno", "1234".getBytes())
+            //    .addAccess("*")))
+    );
     RevokServer revok = new RevokServer(cont, hc, new JsonSerializer());
     Calculator calc = new Calculator();
     cont.put("calc.ICalculator", calc);

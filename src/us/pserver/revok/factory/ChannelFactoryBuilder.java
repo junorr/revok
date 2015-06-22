@@ -55,18 +55,8 @@ public class ChannelFactoryBuilder {
    * Configure GZIP compression on the factory.
    * @return This instance of HttpFactoryProvider.
    */
-  public ChannelFactoryBuilder enableGZipCompression() {
-    gzip = true;
-    return this;
-  }
-  
-  
-  /**
-   * Disable GZIP compression on the factory.
-   * @return This instance of HttpFactoryProvider.
-   */
-  public ChannelFactoryBuilder disableGZipCompression() {
-    gzip = false;
+  public ChannelFactoryBuilder setGZipCoderEnabled(boolean enabled) {
+    gzip = enabled;
     return this;
   }
   
@@ -75,31 +65,19 @@ public class ChannelFactoryBuilder {
    * Configure cryptography on the factory.
    * @return This instance of HttpFactoryProvider.
    */
-  public ChannelFactoryBuilder enableCryptography() {
-    crypt = true;
+  public ChannelFactoryBuilder setCryptCoderEnabled(boolean enabled) {
+    crypt = enabled;
     return this;
   }
   
   
-  /**
-   * Configure cryptography on the factory.
-   * @param algo Cryptography algorithm.
-   * @return This instance of HttpFactoryProvider.
-   */
-  public ChannelFactoryBuilder enableCryptography(CryptAlgorithm algo) {
-    if(algo != null) this.algo = algo;
-    crypt = true;
-    return this;
+  public boolean isGZipCoderEnabled() {
+    return gzip;
   }
   
   
-  /**
-   * Disable cryptography on the factory.
-   * @return This instance of HttpFactoryProvider.
-   */
-  public ChannelFactoryBuilder disableCryptography() {
-    crypt = false;
-    return this;
+  public boolean isCryptCoderEnabled() {
+    return crypt;
   }
   
   

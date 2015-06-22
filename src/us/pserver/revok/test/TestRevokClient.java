@@ -45,7 +45,8 @@ public class TestRevokClient {
   
   public static void main(String[] args) throws MethodInvocationException, IOException {
     MethodChain chain = new MethodChain();
-    HttpConnector hc = new HttpConnector("http://localhost:8080/revokServletTest/revok");
+    //HttpConnector hc = new HttpConnector("http://localhost:8080/revokServletTest/revok");
+    HttpConnector hc = new HttpConnector("localhost:9995");
     Credentials cred = new Credentials("juno", "1234".getBytes());
     RemoteObject rob = new RemoteObject(hc, new JsonSerializer())
         .setCredentials(cred);
@@ -124,11 +125,11 @@ public class TestRevokClient {
     System.out.print("* Invoking IStreamHandler.read( "+ p+ " ) = ");
     InputStream is = handler.read(p);
     System.out.println(is+ ", available="+ is.available());
-    IO.tr(is, IO.os(IO.p("/storage/pic-2.jpg")));
+    System.out.println("* Bytes Transferred="+ IO.tr(is, IO.os(IO.p("/storage/pic-2.jpg"))));
     
     System.out.println("----- ProxyClass: Server -----");
     Server srv = rob.createRemoteObject("global.RevokServer", Server.class);
-    System.out.println("* Server: srv="+ srv);
+    System.out.println("* Server: srv="+ srv.toString());
     System.out.println("* Invoking srv.isRunning() = "+ srv.isRunning());
     System.out.println("* Invoking srv.getAvailableThreads() = "+ srv.getAvailableThreads());
     System.out.println("* Invoking srv.stop()");

@@ -101,8 +101,8 @@ public class RevokServer extends AbstractServer {
     cont.put(ObjectContainer.NAMESPACE_GLOBAL, SERVER_KEY, this);
     con = new HttpConnector();
     factory = ChannelFactoryBuilder.builder()
-        .enableGZipCompression()
-        .enableCryptography()
+        .setCryptCoderEnabled(true)
+        .setGZipCoderEnabled(true)
         .createHttpResponseChannelFactory();
     serial = new JsonSerializer();
   }

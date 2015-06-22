@@ -60,8 +60,8 @@ public class RemoteObject {
   public RemoteObject() {
     net = new HttpConnector();
     factory = ChannelFactoryBuilder.builder()
-        .enableCryptography()
-        .enableGZipCompression()
+        .setCryptCoderEnabled(true)
+        .setGZipCoderEnabled(true)
         .createHttpRequestChannelFactory();
     channel = null;
     cred = null;
@@ -81,8 +81,8 @@ public class RemoteObject {
           "Invalid NetConnector ["+ con+ "]");
     net = con;
     factory = ChannelFactoryBuilder.builder()
-        .enableCryptography()
-        .enableGZipCompression()
+        .setCryptCoderEnabled(true)
+        .setGZipCoderEnabled(true)
         .createHttpRequestChannelFactory();
     serial = new JsonSerializer();
   }
