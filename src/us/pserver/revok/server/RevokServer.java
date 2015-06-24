@@ -351,10 +351,11 @@ public class RevokServer extends AbstractServer {
           // Submit for Thread worker execution
           // a HttpConnectionHandler for handling 
           // the HTTP connection
-          log.info("------------------------------")
-              .info("Handling socket: "+ conn.toString());
+          //log.info("------------------------------")
+            //  .info("Handling socket: "+ conn.toString());
           exec.submit(new RunnableConnectionHandler(
-              factory.createChannel(conn, serial), container));
+              factory.createChannel(conn, serial), 
+              sock.getRemoteSocketAddress(), container));
           // Catch socket timeout exceptions and continue 
           // accepting other connections
         } catch(SocketTimeoutException se) {}

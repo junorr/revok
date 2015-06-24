@@ -56,7 +56,8 @@ public class TestRevokStress implements Runnable {
   public void run() {
     Log log = LogFactory.getSimpleLog(Thread.currentThread().getName());
     try {
-      RemoteObject rob = new RemoteObject(new HttpConnector("localhost:9995"));
+      RemoteObject rob = new RemoteObject(new HttpConnector("http://localhost:8080/revokServletTest/revok"));
+      //RemoteObject rob = new RemoteObject(new HttpConnector("localhost:9995"));
       ICalculator calc = rob.createRemoteObject("calc", ICalculator.class);
       double arg1 = random();
       double arg2 = random();
@@ -79,11 +80,12 @@ public class TestRevokStress implements Runnable {
     System.setErr(ps);
     
     int CALLS = 100;
+    int count = 0;
     
     log.info("Running stress test with {} requests...", CALLS);
     
     ExecutorService exec = Executors.newCachedThreadPool();
-    while(CALLS-- > 0) {
+    while(count++ < CALLS) {
       exec.submit(new TestRevokStress());
     }
     exec.shutdown();
@@ -96,7 +98,7 @@ public class TestRevokStress implements Runnable {
       num.increment();
     });
     
-    log.info("Total time: {}; Average time for {} calls with {} errors: {} ms", med.get(), num.get(), ERRORS.get(), (med.get() / num.get()));
+    log.info("Total time: {}; Average time for {} calls with {} errors: {} ms", med.get(), num.get(), ERRORS.get() + (CALLS - num.get()), (med.get() / num.get()));
   }
   
 }

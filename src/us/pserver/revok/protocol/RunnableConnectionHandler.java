@@ -23,6 +23,7 @@ package us.pserver.revok.protocol;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.SocketAddress;
 import static us.pserver.chk.Checker.nullarg;
 import us.pserver.log.Log;
 import us.pserver.log.LogFactory;
@@ -34,7 +35,6 @@ import us.pserver.revok.channel.Channel;
 import us.pserver.revok.container.AuthenticationException;
 import us.pserver.revok.container.ObjectContainer;
 import us.pserver.revok.reflect.Invoker;
-import us.pserver.revok.server.RevokServer;
 
 /**
  * <code>RunnableConnectionHandler</code> handle client requests 
@@ -61,6 +61,7 @@ public class RunnableConnectionHandler implements Runnable {
    */
   public static final String CONN_RESET = "Connection reset";
   
+  private SocketAddress client;
   
   private Channel channel;
   
@@ -79,7 +80,7 @@ public class RunnableConnectionHandler implements Runnable {
    * <code>HttpServerConnection</code>.
    * @param cont The <code>ObjectContainer</code> that holds the objects.
    */
-  public RunnableConnectionHandler(Channel ch, ObjectContainer cont) {
+  public RunnableConnectionHandler(Channel ch, SocketAddress cli, ObjectContainer cont) {
     if(ch == null)
       throw new IllegalArgumentException(
           "[HttpConnectionHandler()] "
@@ -94,7 +95,13 @@ public class RunnableConnectionHandler implements Runnable {
     channel = ch;
     closed = false;
     container = cont;
+    client = cli;
     log = LogFactory.getSimpleLog(RunnableConnectionHandler.class);
+  }
+  
+  
+  public RunnableConnectionHandler(Channel ch, ObjectContainer cont) {
+    this(ch, null, cont);
   }
   
   
@@ -136,8 +143,7 @@ public class RunnableConnectionHandler implements Runnable {
       if(msg != null 
           && !msg.contains(READ_ERROR)
           && !msg.contains(CONN_RESET)) {
-        log.error("Error reading from channel")
-            .error(e, true);
+        log.error("Error on channel read: {}", e.toString());
         if(log.outputs().isEmpty())
           throw new RuntimeException("Error reading from channel", e);
       }
@@ -158,7 +164,7 @@ public class RunnableConnectionHandler implements Runnable {
       // writes the Transport object on the channel
       // and log the result sent.
       channel.write(trp);
-      log.info("Response sent: "+ trp.getObject());
+      //log.info("Response sent: "+ trp.getObject());
     } catch(IOException e) {
       // Log an error occurred on channel writing.
       log.warn(
@@ -286,7 +292,7 @@ public class RunnableConnectionHandler implements Runnable {
     if(trp == null || trp.getObject() == null) 
       return null;
     // Log the remote method invocation request
-    log.info("<- Remote request: "+ trp.getObject());
+    //log.info("<- Remote request: "+ trp.getObject());
     // Handle the readed invocation request according
     // if it is a single remote request or a chain of 
     // methods request
@@ -323,6 +329,14 @@ public class RunnableConnectionHandler implements Runnable {
   }
   
   
+  public String getClientAddress() {
+    if(client == null) return "Request: ";
+    return "{".concat(
+        client.toString().replace("/", ""))
+        .concat("}");
+  }
+  
+  
   /**
    * Handle the Http connection request.
    */
@@ -335,16 +349,25 @@ public class RunnableConnectionHandler implements Runnable {
     }
   
     // Reads the Transport object from the channel.
+    long start = System.nanoTime();
     Transport trp = this.read();
+    
+    Object req = trp.getObject();
     // Check for error reading from the channel and log it.
     if(trp == null) {
-      log.info("Connection closed by client.");
+      log.debug("Connection closed by client.");
       close();
       return;
     }
     // Handle the invocation request and write the 
     // result on the channel.
-    this.write( handleInvoke(trp) );
+    trp = handleInvoke(trp);
+    double time = (System.nanoTime() - start) / 1000000.0;
+    
+    log.info("{}  {}  \t->  {}  \t({} ms)", 
+        getClientAddress(), req, trp.getObject(), round(time, 1));
+    
+    this.write(trp);
     // If is a persistent Http connection, try
     // to continue the communication with the client
     // over the same connection. Close it otherwise.
@@ -352,6 +375,13 @@ public class RunnableConnectionHandler implements Runnable {
       this.run();
     else
       this.close();
+  }
+  
+  
+  private double round(double arg, int dec) {
+    long i = (long) arg;
+    long d = Math.round((arg - i) * Math.pow(10, dec));
+    return i + d / Math.pow(10, dec);
   }
   
   

@@ -45,6 +45,7 @@ public class TestRevokServer {
             //    .addAccess("*")))
     );
     RevokServer revok = new RevokServer(cont, hc, new JsonSerializer());
+    revok.setAvailableThreads(10);
     Calculator calc = new Calculator();
     cont.put("calc.ICalculator", calc);
     cont.put("io.IStreamHandler", new StreamHandler());
