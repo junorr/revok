@@ -34,6 +34,7 @@ import us.pserver.log.Log;
 import us.pserver.log.LogFactory;
 import us.pserver.revok.HttpConnector;
 import us.pserver.revok.RemoteObject;
+import us.pserver.revok.server.Server;
 import us.pserver.streams.NullOutput;
 import us.pserver.streams.Thing;
 
@@ -58,8 +59,8 @@ public class TestRevokStress implements Runnable {
   public void run() {
     //Log log = LogFactory.getSimpleLog(Thread.currentThread().getName());
     try {
-      RemoteObject rob = new RemoteObject(new HttpConnector("http://localhost:8080/revokServletTest/revok"));
-      //RemoteObject rob = new RemoteObject(new HttpConnector("localhost:9995"));
+      //RemoteObject rob = new RemoteObject(new HttpConnector("http://localhost:8080/revokServletTest/revok"));
+      RemoteObject rob = new RemoteObject(new HttpConnector("localhost:9995"));
       ICalculator calc = rob.createRemoteObject("calc", ICalculator.class);
       double arg1 = random();
       double arg2 = random();
@@ -81,7 +82,7 @@ public class TestRevokStress implements Runnable {
     PrintStream ps = new PrintStream(NullOutput.out);
     System.setErr(ps);
     
-    int CALLS = 1000;
+    int CALLS = 200;
     int count = 0;
     
     log.info("Running stress test with {} requests...", CALLS);
@@ -113,8 +114,7 @@ public class TestRevokStress implements Runnable {
         .info("Calls.......: {}", num.get())
         .info("Errors......: {}", ERRORS.get() + (CALLS - num.get()))
         .info("Average Time: {} ms", df.format(med.get() / num.get()))
-        .info("Minimum Time: {} ms", df.format(Collections.min(times)))
-        .info("Maximum Time: {} ms", df.format(Collections.max(times)))
+        .info("Min-Max Time: {} - {} ms", df.format(Collections.min(times)), df.format(Collections.max(times)))
         ;
   }
   

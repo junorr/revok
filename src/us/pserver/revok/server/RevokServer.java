@@ -303,7 +303,7 @@ public class RevokServer extends AbstractServer {
     
     log.info("Starting RevokServer...");
     setRunning(true);
-    exec = Executors.newFixedThreadPool(availableThreads);
+    exec = Executors.newWorkStealingPool(availableThreads);
   }
   
   

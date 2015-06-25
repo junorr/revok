@@ -35,11 +35,12 @@ public interface Server extends Runnable {
   
   /**
    * <code>
-   *  DEFAULT_AVAILABLE_THREADS = 6
+   *  DEFAULT_AVAILABLE_THREADS = Runtime.getRuntime().availableProcessors() * 1.5
    * </code><br>
    * Default number of worker <code>Threads</code> for client requests attending.
    */
-  public static final int DEFAULT_AVAILABLE_THREADS = 6;
+  public static final int DEFAULT_AVAILABLE_THREADS = 
+      Math.round(Runtime.getRuntime().availableProcessors() * 1.5f);
   
   
   /**

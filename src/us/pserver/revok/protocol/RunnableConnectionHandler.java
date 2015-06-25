@@ -366,7 +366,7 @@ public class RunnableConnectionHandler implements Runnable {
     
     log.info("{}  {}  \t->  {}  \t({} ms){}", 
         getClientAddress(), req, trp.getObject(), round(time, 1), 
-        (time > 200.0 ? "+" : ""));
+        (time > 300.0 ? "+" : ""));
     
     this.write(trp);
     // If is a persistent Http connection, try
