@@ -22,11 +22,13 @@
 package us.pserver.revok.test;
 
 import java.io.PrintStream;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeUnit;
 import us.pserver.log.Log;
 import us.pserver.log.LogFactory;
@@ -54,7 +56,7 @@ public class TestRevokStress implements Runnable {
   
   @Override
   public void run() {
-    Log log = LogFactory.getSimpleLog(Thread.currentThread().getName());
+    //Log log = LogFactory.getSimpleLog(Thread.currentThread().getName());
     try {
       RemoteObject rob = new RemoteObject(new HttpConnector("http://localhost:8080/revokServletTest/revok"));
       //RemoteObject rob = new RemoteObject(new HttpConnector("localhost:9995"));
@@ -79,17 +81,22 @@ public class TestRevokStress implements Runnable {
     PrintStream ps = new PrintStream(NullOutput.out);
     System.setErr(ps);
     
-    int CALLS = 100;
+    int CALLS = 1000;
     int count = 0;
     
     log.info("Running stress test with {} requests...", CALLS);
+    long start = System.nanoTime();
     
-    ExecutorService exec = Executors.newCachedThreadPool();
+    /*ThreadPoolExecutor*/ ForkJoinPool exec = 
+        (ForkJoinPool) Executors.newWorkStealingPool();
+    //log.info("ExecutorService.class = {}", exec.getClass());
     while(count++ < CALLS) {
       exec.submit(new TestRevokStress());
+      //log.info("-  exec.getPoolSize() = {}", exec.getPoolSize());
     }
     exec.shutdown();
     exec.awaitTermination(1000, TimeUnit.SECONDS);
+    double total = (System.nanoTime() - start)/1000000.0;
     
     Thing<Double> med = new Thing(0.0);
     Thing<Integer> num = new Thing(0);
@@ -98,7 +105,17 @@ public class TestRevokStress implements Runnable {
       num.increment();
     });
     
-    log.info("Total time: {}; Average time for {} calls with {} errors: {} ms", med.get(), num.get(), ERRORS.get() + (CALLS - num.get()), (med.get() / num.get()));
+    DecimalFormat df = new DecimalFormat("#,##0.00");
+    log.info("Done!")
+        .info("-------------")
+        .info("Total Time..: {} ms", df.format(total))
+        .info("Sum Time....: {} ms", df.format(med.get()))
+        .info("Calls.......: {}", num.get())
+        .info("Errors......: {}", ERRORS.get() + (CALLS - num.get()))
+        .info("Average Time: {} ms", df.format(med.get() / num.get()))
+        .info("Minimum Time: {} ms", df.format(Collections.min(times)))
+        .info("Maximum Time: {} ms", df.format(Collections.max(times)))
+        ;
   }
   
 }
