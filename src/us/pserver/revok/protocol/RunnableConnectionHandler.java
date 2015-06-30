@@ -96,7 +96,7 @@ public class RunnableConnectionHandler implements Runnable {
     closed = false;
     container = cont;
     client = cli;
-    log = LogFactory.getSimpleLog(RunnableConnectionHandler.class);
+    log = LogFactory.getOrCreateSimpleLog(RunnableConnectionHandler.class, true);
   }
   
   

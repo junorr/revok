@@ -22,10 +22,7 @@
 package us.pserver.revok.test;
 
 import us.pserver.revok.HttpConnector;
-import us.pserver.revok.container.Authenticator;
-import us.pserver.revok.container.Credentials;
 import us.pserver.revok.container.ObjectContainer;
-import us.pserver.revok.container.SingleCredentialsSource;
 import us.pserver.revok.protocol.JsonSerializer;
 import us.pserver.revok.server.RevokServer;
 import us.pserver.revok.server.Server;
@@ -46,8 +43,9 @@ public class TestRevokServer {
             //    .addAccess("*")))
     );
     RevokServer revok = new RevokServer(cont, hc, new JsonSerializer());
-    System.out.println("Runtime.GetRuntime().availableProcessors() = "+ Runtime.getRuntime().availableProcessors());
-    System.out.println("SERVER.DEFAULT_AVAILABLE_THREADS = "+ Server.DEFAULT_AVAILABLE_THREADS);
+    System.out.println("Available Processors: "+ Runtime.getRuntime().availableProcessors());
+    System.out.println("Available Threads...: "+ Server.DEFAULT_AVAILABLE_THREADS);
+    System.out.println();
     revok.setAvailableThreads(10);
     Calculator calc = new Calculator();
     cont.put("calc.ICalculator", calc);

@@ -143,7 +143,7 @@ public class RevokServlet extends HttpServlet {
   
   @Override
   public void init(ServletConfig config) throws ServletException {
-    log = LogFactory.getSimpleLog(this.getClass())
+    log = LogFactory.getOrCreateSimpleLog(this.getClass(), false)
         .put(ID_SERVLET_OUTPUT, 
             new ServletLogOutput(config.getServletContext()));
     LogFactory.putCached("us.pserver.revok", log);

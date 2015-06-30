@@ -247,7 +247,7 @@ public class RevokServer extends AbstractServer {
    * @return This modified <code>RevokServer</code> instance.
    */
   public RevokServer enableLogging() {
-    log = LogFactory.getSimpleLog(this.getClass());
+    log = LogFactory.getOrCreateSimpleLog(this.getClass(), false);
     LogFactory.putCached("us.pserver.revok", log);
     return this;
   }
@@ -260,7 +260,7 @@ public class RevokServer extends AbstractServer {
    */
   public RevokServer enableFileLogging(String path) {
     if(path != null && !path.trim().isEmpty()) {
-      log = LogFactory.getSimpleLog(this.getClass(), Paths.get(path));
+      log = LogFactory.getOrCreateSimpleLog(this.getClass(), path, false);
       LogFactory.putCached("us.pserver.revok", log);
     }
     return this;
@@ -268,7 +268,8 @@ public class RevokServer extends AbstractServer {
   
   
   /**
-   * Disable logging to file and enable stdout and errout log (same as <code>enableLogging()</code>).
+   * Disable logging to file and enable stdout and errout log 
+   * (same as <code>enableLogging()</code>).
    * @return This modified <code>RevokServer</code> instance.
    */
   public RevokServer disableFileLogging() {

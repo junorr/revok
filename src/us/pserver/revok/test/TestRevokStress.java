@@ -78,7 +78,7 @@ public class TestRevokStress implements Runnable {
 
   
   public static void main(String[] args) throws InterruptedException {
-    Log log = LogFactory.getSimpleLog(TestRevokStress.class);
+    Log log = LogFactory.getOrCreateSimpleLog(TestRevokStress.class, true);
     PrintStream ps = new PrintStream(NullOutput.out);
     System.setErr(ps);
     
