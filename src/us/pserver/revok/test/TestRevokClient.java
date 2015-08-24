@@ -48,18 +48,20 @@ public class TestRevokClient {
     //HttpConnector hc = new HttpConnector("http://localhost:8080/revokServletTest/revok");
     HttpConnector hc = new HttpConnector("localhost:9995");
     Credentials cred = new Credentials("juno", "1234".getBytes());
-    RemoteObject rob = new RemoteObject(hc, new JsonSerializer())
-        .setCredentials(cred);
+    RemoteObject rob = RemoteObject.builder()
+        .setConnector(hc)
+        .setSerial(new JsonSerializer())
+        .create();
     RemoteMethod rm = null;
     List<String> mts = null;
     
     
     System.out.println("----------------------------------");
-    rm = new RemoteMethod()
-        .forObject("global.ObjectContainer")
-        .method("listMethods")
-        .types(String.class)
-        .args("calc.ICalculator");
+    rm = RemoteMethod.builder()
+        .setObjectName("global.ObjectContainer")
+        .setMethodName("listMethods")
+        .addArgument(String.class, "calc.ICalculator")
+        .create();
     System.out.println("* Invoke      --> "+ rm);
     mts = (List<String>) rob.invoke(rm);
     System.out.println("* mts.size="+ mts.size());
@@ -67,11 +69,11 @@ public class TestRevokClient {
     
     
     System.out.println("----------------------------------");
-    rm = new RemoteMethod()
-        .forObject("global.ObjectContainer")
-        .method("objects")
-        .types(String.class)
-        .args("global");
+    rm = RemoteMethod.builder()
+        .setObjectName("global.ObjectContainer")
+        .setMethodName("objects")
+        .addArgument(String.class, "global")
+        .create();
     System.out.println("* Invoke      --> "+ rm);
     mts = (List<String>) rob.invoke(rm);
     System.out.println("* objs.size="+ mts.size());
@@ -79,13 +81,21 @@ public class TestRevokClient {
     
     
     System.out.println("----------------------------------");
-    chain.add("calc.ICalculator", "xyz")
-        .types(double.class, double.class, double.class)
-        .args(113.0, 7.0, 0.0);
+    chain.add(RemoteMethod.builder()
+        .setObjectName("calc.ICalculator")
+        .setMethodName("xyz")
+        .setArgumentTypes(double.class, double.class, double.class)
+        .setArguments(113.0, 7.0, 0.0)
+        .create()
+    );
     chain.add("div");
     chain.add("print");
     chain.add("moveZX");
-    chain.add("round").types(int.class).args(4);
+    chain.add(RemoteMethod.builder()
+        .setMethodName("round")
+        .addArgument(int.class, 4)
+        .create()
+    );
     chain.add("z");
     System.out.println("* Invoke      --> "+ chain);
     Double z = (Double) rob.invoke(chain);
@@ -93,20 +103,22 @@ public class TestRevokClient {
     
     
     System.out.println("----------------------------------");
-    rm = new RemoteMethod()
-        .forObject("calc.ICalculator")
-        .method("z")
-        .setReturnVar("$calc.temp");
+    rm = RemoteMethod.builder()
+        .setObjectName("calc.ICalculator")
+        .setMethodName("z")
+        .setServerReturnVariable("$calc.temp")
+        .create();
     System.out.println("* Invoke      --> "+ rm);
     System.out.println(">> "+ rob.invoke(rm));
     
     
     System.out.println("----------------------------------");
-    rm = new RemoteMethod()
-        .forObject("calc.ICalculator")
-        .method("sum")
-        .types(double.class, double.class)
-        .args("$calc.temp", 30.0);
+    rm = RemoteMethod.builder()
+        .setObjectName("calc.ICalculator")
+        .setMethodName("sum")
+        .setArgumentTypes(double.class, double.class)
+        .setArguments("$calc.temp", 30.0)
+        .create();
     System.out.println("* Invoke      --> "+ rm);
     System.out.println(">> "+ rob.invoke(rm));
     

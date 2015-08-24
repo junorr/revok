@@ -101,7 +101,7 @@ public class RemoteInvocationHandler<T> implements InvocationHandler {
         .concat(ints[0].getSimpleName()) : objname);
     RemoteMethodBuilder builder = RemoteMethod.builder()
         .setObjectName(oname)
-        .setMethod(method.getName());
+        .setMethodName(method.getName());
     
     if(args != null && args.length > 0) {
       builder.setArgumentTypes(method.getParameterTypes())

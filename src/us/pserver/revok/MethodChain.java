@@ -72,16 +72,15 @@ public class MethodChain {
    * @param method Method name.
    * @return The created RemoteMethod object.
    */
-  public RemoteMethod add(String objname, String method) {
+  public MethodChain add(String objname, String method) {
     if(objname != null && method != null) {
       RemoteMethod rm = RemoteMethod.builder()
           .setObjectName(objname)
-          .setMethod(method).create();
+          .setMethodName(method).create();
       meths.add(rm);
       lastadd = rm;
-      return rm;
     }
-    return null;
+    return this;
   }
   
   
@@ -90,15 +89,14 @@ public class MethodChain {
    * @param method Method name.
    * @return The created RemoteMethod object.
    */
-  public RemoteMethod add(String method) {
+  public MethodChain add(String method) {
     if(method != null) {
       RemoteMethod rm = RemoteMethod.builder()
-          .setMethod(method).create();
+          .setMethodName(method).create();
       meths.add(rm);
       lastadd = rm;
-      return rm;
     }
-    return null;
+    return this;
   }
   
   

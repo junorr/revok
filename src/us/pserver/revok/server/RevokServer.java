@@ -25,17 +25,13 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
-import java.nio.file.Paths;
-import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.apache.http.HttpServerConnection;
 import org.apache.http.impl.DefaultBHttpServerConnection;
-import us.pserver.log.Log;
-import us.pserver.log.LogFactory;
-import us.pserver.log.output.FileLogOutput;
-import us.pserver.log.output.LogOutput;
+import org.apache.log4j.Logger;
+import us.pserver.log.LogHelper;
+import us.pserver.log.Logging;
 import us.pserver.revok.HttpConnector;
 import us.pserver.revok.container.ObjectContainer;
 import us.pserver.revok.factory.ChannelFactory;
@@ -85,7 +81,7 @@ public class RevokServer extends AbstractServer {
   
   private ObjectSerializer serial;
   
-  private Log log;
+  private LogHelper log;
   
   
   /**
@@ -215,7 +211,7 @@ public class RevokServer extends AbstractServer {
    * Get the log system.
    * @return Log
    */
-  public Log getLog() {
+  public LogHelper getLogHelper() {
     return log;
   }
   
@@ -225,7 +221,7 @@ public class RevokServer extends AbstractServer {
    * @param log Log
    * @return This modified <code>RevokServer</code> instance.
    */
-  public RevokServer setLog(Log log) {
+  public RevokServer setLogHelper(LogHelper log) {
     if(log != null)
       this.log = log;
     return this;
@@ -237,7 +233,7 @@ public class RevokServer extends AbstractServer {
    * @return This modified <code>RevokServer</code> instance.
    */
   public RevokServer disableLogging() {
-    log.clearOutputs();
+    Logger.getRootLogger().removeAllAppenders();
     return this;
   }
   
@@ -247,43 +243,7 @@ public class RevokServer extends AbstractServer {
    * @return This modified <code>RevokServer</code> instance.
    */
   public RevokServer enableLogging() {
-    log = LogFactory.getOrCreateSimpleLog(this.getClass(), false);
-    LogFactory.putCached("us.pserver.revok", log);
-    return this;
-  }
-  
-  
-  /**
-   * Enable file, stdout and errout logging.
-   * @param path Path to the log file.
-   * @return This modified <code>RevokServer</code> instance.
-   */
-  public RevokServer enableFileLogging(String path) {
-    if(path != null && !path.trim().isEmpty()) {
-      log = LogFactory.getOrCreateSimpleLog(this.getClass(), path, false);
-      LogFactory.putCached("us.pserver.revok", log);
-    }
-    return this;
-  }
-  
-  
-  /**
-   * Disable logging to file and enable stdout and errout log 
-   * (same as <code>enableLogging()</code>).
-   * @return This modified <code>RevokServer</code> instance.
-   */
-  public RevokServer disableFileLogging() {
-    if(log != null) {
-      Optional<Entry<String, LogOutput>> flog = 
-          log.outputsMap().entrySet().stream().filter(e->
-              FileLogOutput.class.isAssignableFrom(
-                  e.getValue().getClass())).findFirst();
-      if(flog.isPresent()) {
-        log.remove(flog.get().getKey());
-        LogFactory.putCached("us.pserver.revok", log);
-      }
-    }
-    else enableLogging();
+    log = Logging.getConfigured(this.getClass());
     return this;
   }
   
@@ -366,8 +326,8 @@ public class RevokServer extends AbstractServer {
       // Errors over server listening connections are fatal
       // and irrecoverable.
       log.error(
-          new IOException("Error running RevokServer", e), true);
-      if(log.outputs().isEmpty())
+          new IOException("Error running RevokServer", e));
+      if(!Logger.getRootLogger().getAllAppenders().hasMoreElements())
         throw new RuntimeException("Error running RevokServer", e);
     }
     // Shutdown the server and log when it not should be running anymore

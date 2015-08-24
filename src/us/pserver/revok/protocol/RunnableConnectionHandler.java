@@ -24,8 +24,8 @@ package us.pserver.revok.protocol;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.SocketAddress;
-import us.pserver.log.Log;
-import us.pserver.log.LogFactory;
+import org.apache.log4j.Logger;
+import us.pserver.log.LogHelper;
 import us.pserver.revok.MethodChain;
 import us.pserver.revok.MethodInvocationException;
 import us.pserver.revok.OpResult;
@@ -67,7 +67,7 @@ public class RunnableConnectionHandler implements Runnable {
   
   private ObjectContainer container;
   
-  private Log log;
+  private LogHelper log;
   
   private boolean closed;
   
@@ -96,7 +96,7 @@ public class RunnableConnectionHandler implements Runnable {
     closed = false;
     container = cont;
     client = cli;
-    log = LogFactory.getOrCreateSimpleLog(RunnableConnectionHandler.class, true);
+    log = LogHelper.off(this.getClass());
   }
   
   
@@ -143,8 +143,8 @@ public class RunnableConnectionHandler implements Runnable {
       if(msg != null 
           && !msg.contains(READ_ERROR)
           && !msg.contains(CONN_RESET)) {
-        log.error("Error on channel read: {}", e.toString());
-        if(log.outputs().isEmpty())
+        log.error("Error on channel read: %s", e.toString());
+        if(!Logger.getRootLogger().getAllAppenders().hasMoreElements())
           throw new RuntimeException("Error reading from channel", e);
       }
       return null;
@@ -167,9 +167,8 @@ public class RunnableConnectionHandler implements Runnable {
       //log.info("Response sent: "+ trp.getObject());
     } catch(IOException e) {
       // Log an error occurred on channel writing.
-      log.warn(
-          new IOException("Error writing response", e), false);
-      if(log.outputs().isEmpty())
+      log.warn(new IOException("Error writing response", e));
+      if(!Logger.getRootLogger().getAllAppenders().hasMoreElements())
         throw new RuntimeException("Error writing response", e);
     }
   }
@@ -196,8 +195,8 @@ public class RunnableConnectionHandler implements Runnable {
       // and log the error.
       op.setSuccessOperation(false);
       op.setError(e);
-      log.warn("Error invoking method {"+ rm+ "}")
-          .warn(e, !(e instanceof AuthenticationException));
+      log.warn("Error invoking method {%s}", rm)
+          .warn(e);
     }
     return op;
   }
@@ -232,9 +231,9 @@ public class RunnableConnectionHandler implements Runnable {
       // Catch, log and set an occurred error in the operation result.
       op.setSuccessOperation(false);
       op.setError(e);
-      log.warn("Error invoking method ["+ chain.current()+ "]")
-          .warn(e, true);
-      if(log.outputs().isEmpty())
+      log.warn("Error invoking method [%s]", chain.current())
+          .warn(e);
+      if(!Logger.getRootLogger().getAllAppenders().hasMoreElements())
         throw new RuntimeException("Error invoking method ["+ chain.current()+ "]", e);
     }
     return op;

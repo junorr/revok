@@ -21,8 +21,12 @@
 
 package us.pserver.revok.servlet;
 
+import javax.servlet.ServletContext;
 import org.apache.log4j.AppenderSkeleton;
+import org.apache.log4j.Layout;
+import org.apache.log4j.PatternLayout;
 import org.apache.log4j.spi.LoggingEvent;
+import us.pserver.tools.Valid;
 
 /**
  *
@@ -30,17 +34,30 @@ import org.apache.log4j.spi.LoggingEvent;
  * @version 0.0 - 23/08/2015
  */
 public class ServletAppender extends AppenderSkeleton {
-
-
-  @Override
-  protected void append(LoggingEvent le) {
-    
+  
+  private final String LOG_PATTERN = "%d{yyyy-MM-dd HH:mm:ss.SSS}  [%-5p]  %c{4}:%L - %m%n";
+  
+  private final ServletContext sctx;
+  
+  private final Layout layout;
+  
+  
+  public ServletAppender(ServletContext sctx) {
+    this.sctx = Valid.off(sctx).forNull()
+        .getOrFail(ServletContext.class);
+    layout = new PatternLayout(LOG_PATTERN);
+    this.setLayout(layout);
+  }
+  
+  
+  public ServletContext getServletContext() {
+    return sctx;
   }
 
 
   @Override
-  public void close() {
-    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+  protected void append(LoggingEvent le) {
+    sctx.log("\n"+ layout.format(le));
   }
 
 
@@ -48,5 +65,9 @@ public class ServletAppender extends AppenderSkeleton {
   public boolean requiresLayout() {
     return true;
   }
+
+
+  @Override
+  public void close() {}
 
 }

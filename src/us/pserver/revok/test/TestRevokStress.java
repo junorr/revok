@@ -30,13 +30,12 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeUnit;
-import us.pserver.log.Log;
-import us.pserver.log.LogFactory;
+import us.pserver.log.LogHelper;
 import us.pserver.revok.HttpConnector;
 import us.pserver.revok.RemoteObject;
 import us.pserver.revok.server.Server;
 import us.pserver.streams.NullOutput;
-import us.pserver.streams.Thing;
+import us.pserver.streams.Instance;
 
 /**
  *
@@ -48,7 +47,7 @@ public class TestRevokStress implements Runnable {
   private static final List<Double> times = 
       Collections.synchronizedList(new LinkedList<>());
   
-  private static Thing<Integer> ERRORS = new Thing<>(0);
+  private static Instance<Integer> ERRORS = new Instance<>(0);
   
   
   public double random() {
@@ -60,7 +59,9 @@ public class TestRevokStress implements Runnable {
     //Log log = LogFactory.getSimpleLog(Thread.currentThread().getName());
     try {
       //RemoteObject rob = new RemoteObject(new HttpConnector("http://localhost:8080/revokServletTest/revok"));
-      RemoteObject rob = new RemoteObject(new HttpConnector("localhost:9995"));
+      RemoteObject rob = RemoteObject.builder()
+          .setConnector(new HttpConnector("localhost:9995"))
+          .create();
       ICalculator calc = rob.createRemoteObject("calc", ICalculator.class);
       double arg1 = random();
       double arg2 = random();
@@ -78,7 +79,7 @@ public class TestRevokStress implements Runnable {
 
   
   public static void main(String[] args) throws InterruptedException {
-    Log log = LogFactory.getOrCreateSimpleLog(TestRevokStress.class, true);
+    LogHelper log = LogHelper.off(TestRevokStress.class);
     PrintStream ps = new PrintStream(NullOutput.out);
     System.setErr(ps);
     
@@ -99,8 +100,8 @@ public class TestRevokStress implements Runnable {
     exec.awaitTermination(1000, TimeUnit.SECONDS);
     double total = (System.nanoTime() - start)/1000000.0;
     
-    Thing<Double> med = new Thing(0.0);
-    Thing<Integer> num = new Thing(0);
+    Instance<Double> med = new Instance(0.0);
+    Instance<Integer> num = new Instance(0);
     times.forEach(t->{
       med.plus(t);
       num.increment();

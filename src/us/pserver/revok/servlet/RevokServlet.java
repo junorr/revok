@@ -29,8 +29,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import us.pserver.log.Log;
-import us.pserver.log.LogFactory;
+import org.apache.log4j.Logger;
+import us.pserver.log.LogHelper;
 import us.pserver.revok.container.Authenticator;
 import us.pserver.revok.container.Credentials;
 import us.pserver.revok.container.CredentialsSource;
@@ -48,22 +48,13 @@ import us.pserver.revok.protocol.ObjectSerializer;
  */
 public class RevokServlet extends HttpServlet {
   
-  /**
-   * <code>
-   *  ID_SERVLET_OUTPUT = "servlet";
-   * </code><br>
-   * <code>LogOutput</code> ID for <code>javax.servlet.GenericServlet</code> output.
-   */
-  public static final String ID_SERVLET_OUTPUT = "servlet";
-  
-  
   private ObjectContainer container;
   
   private ObjectSerializer serial;
   
   private ServletConfigUtil util;
   
-  private Log log;
+  private LogHelper log;
   
   
   /**
@@ -79,7 +70,7 @@ public class RevokServlet extends HttpServlet {
           util.getParam(name)).create();
       if(ref.hasError()) {
         String msg = "Error creating ObjectSerializer: "+ util.getParam(name);
-        log.error(msg).error(ref.getError(), true);
+        log.error(msg).error(ref.getError());
         throw new ServletException(msg, ref.getError());
       }
       log.debug("Using config custom serializer: "+ util.getParam(name));
@@ -129,7 +120,7 @@ public class RevokServlet extends HttpServlet {
           ref.onClass(sclass).create();
       if(ref.hasError()) {
         String msg = "Error creating CredentialsSource: "+ sclass;
-        log.error(msg).error(ref.getError(), true);
+        log.error(msg).error(ref.getError());
         throw new ServletException(msg, ref.getError());
       }
       container = new ObjectContainer(new Authenticator(src));
@@ -143,10 +134,10 @@ public class RevokServlet extends HttpServlet {
   
   @Override
   public void init(ServletConfig config) throws ServletException {
-    log = LogFactory.getOrCreateSimpleLog(this.getClass(), false)
-        .put(ID_SERVLET_OUTPUT, 
-            new ServletLogOutput(config.getServletContext()));
-    LogFactory.putCached("us.pserver.revok", log);
+    Logger.getRootLogger().removeAllAppenders();
+    Logger.getRootLogger().addAppender(
+        new ServletAppender(config.getServletContext()));
+    log = LogHelper.off(this.getClass());
     log.debug("Init Servlet...");
     util = new ServletConfigUtil(config);
     this.initObjectSerializer();
@@ -163,7 +154,7 @@ public class RevokServlet extends HttpServlet {
       handler.run();
       handler.close();
     } catch(Exception e) {
-      log.error(e, true);
+      log.error(e);
       throw new ServletException(e.toString(), e);
     }
   }

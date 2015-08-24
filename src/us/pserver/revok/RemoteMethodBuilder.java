@@ -108,12 +108,12 @@ public class RemoteMethodBuilder {
   }
 
 
-  public String getMethod() {
+  public String getMethodName() {
     return method;
   }
 
 
-  public RemoteMethodBuilder setMethod(String method) {
+  public RemoteMethodBuilder setMethodName(String method) {
     this.method = method;
     return this;
   }
@@ -124,7 +124,7 @@ public class RemoteMethodBuilder {
   }
 
 
-  public List<Class> getTypes() {
+  public List<Class> getArgumentTypes() {
     return types;
   }
 
