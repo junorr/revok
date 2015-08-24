@@ -46,7 +46,8 @@ public class ChannelFactoryBuilder {
    * Default constructor without arguments.
    */
   public ChannelFactoryBuilder() {
-    gzip = false; crypt = false;
+    gzip = true; 
+    crypt = true;
     algo = CryptAlgorithm.AES_CBC_PKCS5;
   }
   

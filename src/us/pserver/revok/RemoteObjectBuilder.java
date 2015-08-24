@@ -21,8 +21,8 @@
 
 package us.pserver.revok;
 
-import us.pserver.revok.container.Credentials;
 import us.pserver.revok.factory.ChannelFactory;
+import us.pserver.revok.factory.ChannelFactoryBuilder;
 import us.pserver.revok.protocol.JsonSerializer;
 import us.pserver.revok.protocol.ObjectSerializer;
 
@@ -42,7 +42,8 @@ public class RemoteObjectBuilder {
   
   public RemoteObjectBuilder() {
     connector = null;
-    channelFactory = null;
+    channelFactory = ChannelFactoryBuilder.builder()
+        .createHttpRequestChannelFactory();
     serial = new JsonSerializer();
   }
 

@@ -67,7 +67,7 @@ public class RemoteMethod {
         Valid.off(tps).forNull()
             .getOrFail("Invalid argument types list: ")
     );
-    cred = Valid.off(crd).forNull().getOrFail(Credentials.class);
+    cred = crd;
     returnVariable = retvar;
   }
   
