@@ -24,13 +24,13 @@ package us.pserver.revok.reflect;
 import com.jpower.rfl.Reflector;
 import java.util.List;
 import java.util.stream.Collectors;
-import static us.pserver.chk.Checker.nullarg;
 import us.pserver.revok.MethodInvocationException;
 import us.pserver.revok.RemoteMethod;
 import us.pserver.revok.container.AuthenticationException;
 import us.pserver.revok.container.Credentials;
 import us.pserver.revok.container.ObjectContainer;
 import static us.pserver.revok.reflect.Invoker.DEFAULT_INVOKE_TRIES;
+import us.pserver.tools.Valid;
 
 
 /**
@@ -45,7 +45,7 @@ public class Invoker {
    * <code>
    *  DEFAULT_INVOKE_TRIES = 5
    * </code><br>
-   * Default number of tries to invoke a method in case of error.
+ Default number of tries to invoke a getMethod in case of error.
    * Allow greater quality results on multithreaded environments.
    */
   public static final int DEFAULT_INVOKE_TRIES = 5;
@@ -78,7 +78,7 @@ public class Invoker {
    * stored object to invoke.
    * @param cred Credentials object for authentication.
    * @throws MethodInvocationException In case of error 
-   * invoking the remote method.
+ invoking the remote getMethod.
    */
   public Invoker(ObjectContainer cont, Credentials cred) throws MethodInvocationException {
     if(cont == null) 
@@ -118,27 +118,27 @@ public class Invoker {
   
   
   /**
-   * Get the object whose method will be invoked.
+   * Get the object whose getMethod will be invoked.
    * @param rm Method information.
-   * @return The object whose method will be invoked.
-   * @throws MethodInvocationException In case of error invoking the method.
+   * @return The object whose getMethod will be invoked.
+   * @throws MethodInvocationException In case of error invoking the getMethod.
    * @throws AuthenticationException In case of authentication error.
    */
   public Object getObject(RemoteMethod rm) 
       throws MethodInvocationException, AuthenticationException {
-    nullarg(RemoteMethod.class, rm);
-    if(!container.contains(rm.objectName())) {
-      throw new MethodInvocationException("Object not found {"+ rm.objectName()+ "}");
+    Valid.off(rm).forNull().fail(RemoteMethod.class);
+    if(!container.contains(rm.getObjectName())) {
+      throw new MethodInvocationException("Object not found {"+ rm.getObjectName()+ "}");
     }
-    return getObject(rm.objectName());
+    return getObject(rm.getObjectName());
   }
   
   
   /**
-   * Get the object whose method will be invoked.
+   * Get the object whose getMethod will be invoked.
    * @param name Object name/namespace.
-   * @return The object whose method will be invoked.
-   * @throws MethodInvocationException In case of error invoking the method.
+   * @return The object whose getMethod will be invoked.
+   * @throws MethodInvocationException In case of error invoking the getMethod.
    * @throws AuthenticationException In case of authentication error.
    */
   private Object getObject(String name) throws MethodInvocationException, AuthenticationException {
@@ -154,32 +154,32 @@ public class Invoker {
   
   
   /**
-   * Invoke a method on object and store the returned 
-   * value in a variable on the server (if defined).
+   * Invoke a getMethod on object and store the returned 
+ value in a variable on the server (if defined).
    * @param mth Method to invoke.
-   * @return The return value of the method.
+   * @return The return value of the getMethod.
    * @throws MethodInvocationException In case an error occurs on invocation.
    * @throws AuthenticationException If authentication fails.
    */
   private Object invokeAndSave(RemoteMethod mth) throws MethodInvocationException, AuthenticationException {
     Object res = invoke(mth, 0);
     if(res != null) {
-      container.put(mth.getReturnVar().substring(1), res);
+      container.put(mth.getServerReturnVariable().substring(1), res);
     }
     return res;
   }
     
     
   /**
-   * Invoke a method on object.
-   * @param mth The Remote method invocation request.
+   * Invoke a getMethod on object.
+   * @param mth The Remote getMethod invocation request.
    * @return Objeto de retorno do método ou
    * <code>null</code> no caso <code>void</code>.
    * @throws MethodInvocationException In case an error occurs on invocation.
    * @throws AuthenticationException If authentication fails.
    */
   public Object invoke(RemoteMethod mth) throws MethodInvocationException, AuthenticationException {
-    if(mth.getReturnVar() != null) {
+    if(mth.getServerReturnVariable() != null) {
       return invokeAndSave(mth);
     }
     else {
@@ -191,46 +191,46 @@ public class Invoker {
   /**
    * Verifies if exists any server variable defined 
    * as an argument or return value.
-   * @param mth The method to invoke.
+   * @param mth The getMethod to invoke.
    * @throws MethodInvocationException If the object does not exists on the server.
    * @throws AuthenticationException If authentication fails.
    */
   private void processArgs(RemoteMethod mth) throws MethodInvocationException, AuthenticationException {
-    List args = (List) mth.args().stream()
+    List args = (List) mth.getArguments().stream()
         .filter(o->o.toString().startsWith(VAR_SIGNAL))
         .collect(Collectors.toList());
     for(Object o : args) {
       Object x = getObject(o.toString().substring(1));
-      int idx = mth.args().indexOf(o);
-      mth.args().set(idx, x);
+      int idx = mth.getArguments().indexOf(o);
+      mth.getArguments().set(idx, x);
     }
   }
   
   
   /**
-   * Invokes the method in recursion mode, until the maximum 
-   * number of tries (in case of error).
+   * Invokes the getMethod in recursion mode, until the maximum 
+ number of tries (in case of error).
    * @param currTry Current invocation try.
-   * @return Returned value from the method invocation or <code>null</code>.
+   * @return Returned value from the getMethod invocation or <code>null</code>.
    * @see us.pserver.remote.Invoker#DEFAULT_INVOKE_TRIES
    */
   private Object invoke(RemoteMethod mth, int currTry) throws MethodInvocationException, AuthenticationException {
     if(container == null || mth == null 
-        || mth.method() == null 
+        || mth.getMethod() == null 
         || tries < 1 || ref == null) 
       throw new IllegalStateException(
           "Invoker not properly configured");
     
-    if(target == null && mth.objectName() == null) {
-      throw new MethodInvocationException("Invalid Target Object Name {"+ mth.objectName()+ "}");
+    if(target == null && mth.getObjectName() == null) {
+      throw new MethodInvocationException("Invalid Target Object Name {"+ mth.getObjectName()+ "}");
     }
-    if(mth.objectName() != null) {
+    if(mth.getObjectName() != null) {
       target = getObject(mth);
     }
     
     processArgs(mth);
-    Class[] cls = (mth.types().isEmpty() ? null : mth.typesArray());
-    ref.on(target).method(mth.method(), cls);
+    Class[] cls = (mth.getArgumentTypes().isEmpty() ? null : mth.typesArray());
+    ref.on(target).method(mth.getMethod(), cls);
     
     if(!ref.isMethodPresent()) {
       if(currTry < tries)
@@ -239,8 +239,8 @@ public class Invoker {
       throw new MethodInvocationException("Method not found: "+ mth);
     }
     
-    Object ret = ref.invoke((mth.args().isEmpty() 
-        ? null : mth.args().toArray()));
+    Object ret = ref.invoke((mth.getArguments().isEmpty() 
+        ? null : mth.getArguments().toArray()));
       
     if(ref.hasError()) {
       if(currTry < tries) 

@@ -207,7 +207,9 @@ public class HttpConnector {
         && path != null) 
       ret = path;
     else if(proto != null)
-      ret = proto+ address+ ":"+ port+ path;
+      ret = proto+ address+ ":"+ port;
+    if(path != null)
+      ret += path;
     return ret;
   }
   

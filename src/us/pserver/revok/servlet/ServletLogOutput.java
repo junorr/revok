@@ -48,7 +48,7 @@ public class ServletLogOutput implements LogOutput {
    */
   public ServletLogOutput(ServletContext svt) {
     if(svt == null)
-      throw new IllegalArgumentException("Invalid null GenericServlet");
+      throw new IllegalArgumentException("Invalid null ServletContext");
     scontext = svt;
     levels = new LogLevelManager();
   }

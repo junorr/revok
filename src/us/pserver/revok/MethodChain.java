@@ -34,7 +34,7 @@ import java.util.List;
  */
 public class MethodChain {
 
-  private List<RemoteMethod> meths;
+  private final List<RemoteMethod> meths;
   
   private Iterator<RemoteMethod> iter;
   
@@ -42,7 +42,7 @@ public class MethodChain {
   
   
   /**
-   * Default Constructor without arguments.
+   * Default Constructor without getArguments.
    */
   public MethodChain() {
     meths = new LinkedList<>();
@@ -67,14 +67,16 @@ public class MethodChain {
   
   
   /**
-   * Add a RemoteMethod constructed with passed arguments.
+   * Add a RemoteMethod constructed with passed getArguments.
    * @param objname Object name.
    * @param method Method name.
    * @return The created RemoteMethod object.
    */
   public RemoteMethod add(String objname, String method) {
     if(objname != null && method != null) {
-      RemoteMethod rm = new RemoteMethod(objname, method);
+      RemoteMethod rm = RemoteMethod.builder()
+          .setObjectName(objname)
+          .setMethod(method).create();
       meths.add(rm);
       lastadd = rm;
       return rm;
@@ -90,8 +92,8 @@ public class MethodChain {
    */
   public RemoteMethod add(String method) {
     if(method != null) {
-      RemoteMethod rm = new RemoteMethod()
-          .method(method);
+      RemoteMethod rm = RemoteMethod.builder()
+          .setMethod(method).create();
       meths.add(rm);
       lastadd = rm;
       return rm;
@@ -168,7 +170,6 @@ public class MethodChain {
   @Override
   public String toString() {
     return stringChain();
-    //return "MethodChain{ methods = " + meths.size() + " }";
   }
   
   

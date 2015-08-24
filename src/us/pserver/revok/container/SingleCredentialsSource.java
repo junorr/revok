@@ -24,8 +24,7 @@ package us.pserver.revok.container;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import static us.pserver.chk.Checker.nullarg;
-import static us.pserver.chk.Checker.nullstr;
+import us.pserver.tools.Valid;
 
 /**
  * A CredentialsSource based on a single Credentials object.
@@ -43,9 +42,8 @@ public class SingleCredentialsSource implements CredentialsSource {
    * @param c The Credentials object.
    */
   public SingleCredentialsSource(Credentials c) {
-    nullarg(Credentials.class, c);
-    nullstr(c.getUser());
-    cred = c;
+    cred = Valid.off(c).forNull().getOrFail(Credentials.class);
+    Valid.off(c.getUser()).forEmpty().fail("Invalid user: ", c.getUser());
   }
   
   
@@ -72,8 +70,8 @@ public class SingleCredentialsSource implements CredentialsSource {
    * @return This instance of SingleCredentialsSource.
    */
   public SingleCredentialsSource setCredentials(Credentials c) {
-    nullarg(Credentials.class, c);
-    cred = c;
+    cred = Valid.off(c).forNull()
+        .getOrFail(Credentials.class);
     return this;
   }
   

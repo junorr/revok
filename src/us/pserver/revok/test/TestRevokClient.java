@@ -35,7 +35,7 @@ import us.pserver.revok.server.Server;
 import us.pserver.streams.IO;
 
 /**
- * Test class for revok client making remote method calls.
+ * Test class for revok client making remote getMethod calls.
  * 
  * @author Juno Roesler - juno@pserver.com
  * @version 1.1 - 201506

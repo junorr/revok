@@ -24,7 +24,6 @@ package us.pserver.revok.protocol;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.SocketAddress;
-import static us.pserver.chk.Checker.nullarg;
 import us.pserver.log.Log;
 import us.pserver.log.LogFactory;
 import us.pserver.revok.MethodChain;
@@ -35,6 +34,7 @@ import us.pserver.revok.channel.Channel;
 import us.pserver.revok.container.AuthenticationException;
 import us.pserver.revok.container.ObjectContainer;
 import us.pserver.revok.reflect.Invoker;
+import us.pserver.tools.Valid;
 
 /**
  * <code>RunnableConnectionHandler</code> handle client requests 
@@ -176,19 +176,18 @@ public class RunnableConnectionHandler implements Runnable {
     
     
   /**
-   * Handle the method invocation request.
-   * @param rm Remote method to be invoked.
+   * Handle the getMethod invocation request.
+   * @param rm Remote getMethod to be invoked.
    * @return An operation result <code>OpResult</code> object.
    */
   private OpResult invoke(RemoteMethod rm) {
-    // Check for null argument
-    nullarg(RemoteMethod.class, rm);
+    Valid.off(rm).forNull().fail(RemoteMethod.class);
     OpResult op = new OpResult();
     try {
       // Create an Invoker instance for doing
       // the reflection invocation work.
       Invoker iv = new Invoker(container, rm.getCredentials());
-      // Set the method returned object in the operation result.
+      // Set the getMethod returned object in the operation result.
       op.setReturn(iv.invoke(rm));
       op.setSuccessOperation(true);
     }
@@ -205,13 +204,12 @@ public class RunnableConnectionHandler implements Runnable {
     
     
   /**
-   * Handle the method chain invocation request.
+   * Handle the getMethod chain invocation request.
    * @param chain Chain of methods to be invoked.
    * @return An operation result <code>OpResult</code> object.
    */
   private OpResult invoke(MethodChain chain) {
-    // Check for null argument
-    nullarg(MethodChain.class, chain);
+    Valid.off(chain).forNull().fail(MethodChain.class);
     OpResult op = new OpResult();
     try {
       // Check if chain of methos is empty an throw an error.
@@ -252,7 +250,7 @@ public class RunnableConnectionHandler implements Runnable {
     if(obj == null || chain == null 
         || chain.current() == null) return;
     String msg = "";
-    if(chain.current().objectName() == null)
+    if(chain.current().getObjectName() == null)
       msg = obj.getClass().getSimpleName();
     msg += chain.current().toString();
     log.info("Invoking: "+ msg);
@@ -260,12 +258,12 @@ public class RunnableConnectionHandler implements Runnable {
   
   
   /**
-   * Pack the result of method invocation on a <code>Transport</code> object.
-   * @param op The operation result of method invocation.
+   * Pack the result of getMethod invocation on a <code>Transport</code> object.
+   * @param op The operation result of getMethod invocation.
    * @return The packed <code>Transport</code> object.
    */
   private Transport pack(OpResult op) {
-    nullarg(OpResult.class, op);
+    Valid.off(op).forNull().fail(OpResult.class);
     Transport t = new Transport();
     Object ret = op.getReturn();
     // Check for InputStream reference in the returned object 
@@ -282,16 +280,16 @@ public class RunnableConnectionHandler implements Runnable {
   
   /**
    * Handle the readed <code>Transport</code> 
-   * object for method invocation.
+ object for getMethod invocation.
    * @param trp The readed <code>Transport</code> 
-   * object for method invocation.
+ object for getMethod invocation.
    * @return A new <code>Transport</code> object with 
-   * the method invocation result.
+ the getMethod invocation result.
    */
   public Transport handleInvoke(Transport trp) {
     if(trp == null || trp.getObject() == null) 
       return null;
-    // Log the remote method invocation request
+    // Log the remote getMethod invocation request
     //log.info("<- Remote request: "+ trp.getObject());
     // Handle the readed invocation request according
     // if it is a single remote request or a chain of 
@@ -398,9 +396,9 @@ public class RunnableConnectionHandler implements Runnable {
   
   /**
    * Check for InputStream objects references in the 
-   * remote method arguments, replacing these references
-   * for the embedded Http request InputStream content.
-   * @param rmt The remote method invocation request.
+ remote getMethod getArguments, replacing these references
+ for the embedded Http request InputStream content.
+   * @param rmt The remote getMethod invocation request.
    * @param trp The <code>Transport</code> object readed 
    * from the channel.
    */
@@ -408,15 +406,15 @@ public class RunnableConnectionHandler implements Runnable {
     if(trp == null 
         || !trp.hasContentEmbedded() 
         || rmt == null 
-        || rmt.args() == null
-        || rmt.args().isEmpty())
+        || rmt.getArguments() == null
+        || rmt.getArguments().isEmpty())
       return;
     
-    for(int i = 0; i < rmt.args().size(); i++) {
-      Object o = rmt.args().get(i);
+    for(int i = 0; i < rmt.getArguments().size(); i++) {
+      Object o = rmt.getArguments().get(i);
       if(o != null && FakeInputStreamRef.class
           .isAssignableFrom(o.getClass())) {
-        rmt.args().set(i, trp.getInputStream());
+        rmt.getArguments().set(i, trp.getInputStream());
       }
     }//for
   }

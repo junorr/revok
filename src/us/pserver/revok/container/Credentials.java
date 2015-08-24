@@ -25,8 +25,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
-import static us.pserver.chk.Checker.nullarray;
-import static us.pserver.chk.Checker.nullstr;
+import us.pserver.tools.Valid;
 
 /**
  * The Credentials object encapsulates information 
@@ -61,10 +60,10 @@ public class Credentials {
    * @param pswd Byte array password.
    */
   public Credentials(String user, byte[] pswd) {
-    nullstr(user);
-    nullarray(pswd);
-    this.user = user;
-    this.pswd = pswd;
+    this.user = Valid.off(user).forEmpty()
+        .getOrFail("Invalid user: ");
+    this.pswd = Valid.off(pswd).forEmpty()
+        .getOrFail("Invalid password: ");
     access = new LinkedList<>();
   }
   

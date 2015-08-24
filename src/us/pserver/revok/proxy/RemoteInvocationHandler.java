@@ -24,6 +24,7 @@ package us.pserver.revok.proxy;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import us.pserver.revok.RemoteMethod;
+import us.pserver.revok.RemoteMethodBuilder;
 import us.pserver.revok.RemoteObject;
 
 /**
@@ -33,16 +34,18 @@ import us.pserver.revok.RemoteObject;
  * @version 1.1 - 201506
  * @see us.pserver.revok.RemoteObject#createRemoteObject(java.lang.String, java.lang.Class) 
  */
-public class RemoteInvocationHandler implements InvocationHandler {
+public class RemoteInvocationHandler<T> implements InvocationHandler {
 
   private RemoteObject rob;
   
   private String objname;
   
+  private T instance;
+  
   
   /**
    * Default constructor which receives the RemoteObject used in 
-   * method invocations and the object name on the server.
+ getMethod invocations and the object name on the server.
    * @param rob RemoteObject.
    * @param objname Object name on the server.
    */
@@ -78,19 +81,38 @@ public class RemoteInvocationHandler implements InvocationHandler {
   }
   
   
+  public T getInstance() {
+    return instance;
+  }
+  
+  
+  public void setInstance(T inst) {
+    this.instance = inst;
+  }
+  
+  
   @Override
   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
     Class[] ints = proxy.getClass().getInterfaces();
     if(ints == null || ints.length == 0)
       throw new IllegalArgumentException("Invalid Proxy object. No implemented interfaces");
-    RemoteMethod rm = new RemoteMethod()
-        .forObject((!objname.contains(".") ? objname.concat(".")
-            .concat(ints[0].getSimpleName()) : objname))
-        .method(method.getName());
+    String oname = (!objname.contains(".") 
+        ? objname.concat(".")
+        .concat(ints[0].getSimpleName()) : objname);
+    RemoteMethodBuilder builder = RemoteMethod.builder()
+        .setObjectName(oname)
+        .setMethod(method.getName());
+    
     if(args != null && args.length > 0) {
-      rm.types(method.getParameterTypes()).args(args);
+      builder.setArgumentTypes(method.getParameterTypes())
+          .setArguments(args);
     }
-    return rob.invoke(rm);
+    Object ret = rob.invoke(builder.create());
+    if(instance != null && ret != null 
+        && instance.getClass().isInstance(ret)) {
+      ret = instance;
+    }
+    return ret;
   }
   
 }

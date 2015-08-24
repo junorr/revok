@@ -40,13 +40,13 @@ import org.apache.http.protocol.RequestTargetHost;
 import org.apache.http.protocol.RequestUserAgent;
 import us.pserver.cdr.crypt.CryptAlgorithm;
 import us.pserver.cdr.crypt.CryptKey;
-import static us.pserver.chk.Checker.nullarg;
 import us.pserver.revok.HttpConnector;
 import us.pserver.revok.http.HttpEntityFactory;
 import us.pserver.revok.http.HttpEntityParser;
 import us.pserver.revok.http.HttpConsts;
 import us.pserver.revok.protocol.JsonSerializer;
 import us.pserver.revok.protocol.ObjectSerializer;
+import us.pserver.tools.Valid;
 
 
 /**
@@ -239,8 +239,7 @@ public class HttpRequestChannel implements Channel {
    * @return This instance of HttpRequestChannel
    */
   public HttpRequestChannel setCryptAlgorithm(CryptAlgorithm ca) {
-    nullarg(CryptAlgorithm.class, ca);
-    algo = ca;
+    algo = Valid.off(ca).forNull().getOrFail(CryptAlgorithm.class);
     return this;
   }
   

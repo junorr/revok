@@ -28,7 +28,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import static us.pserver.chk.Checker.nullarg;
+import us.pserver.tools.Valid;
 
 
 /**
@@ -80,8 +80,8 @@ public class ObjectContainer {
    */
   public ObjectContainer(Authenticator a) {
     this();
-    nullarg(Authenticator.class, a);
-    auth = a;
+    auth = Valid.off(a).forNull()
+        .getOrFail(Authenticator.class);
   }
   
   

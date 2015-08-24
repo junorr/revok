@@ -22,7 +22,7 @@
 package us.pserver.revok.container;
 
 import java.util.List;
-import static us.pserver.chk.Checker.nullarg;
+import us.pserver.tools.Valid;
 
 /**
  * Execute authentications of Credentials objects 
@@ -42,8 +42,8 @@ public class Authenticator {
    * @param cs CredentialsSource
    */
   public Authenticator(CredentialsSource cs) {
-    nullarg(CredentialsSource.class, cs);
-    source = cs;
+    source = Valid.off(cs).forNull()
+        .getOrFail(CredentialsSource.class);
   }
   
   
