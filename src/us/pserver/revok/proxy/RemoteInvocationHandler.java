@@ -24,7 +24,6 @@ package us.pserver.revok.proxy;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import us.pserver.revok.RemoteMethod;
-import us.pserver.revok.RemoteMethodBuilder;
 import us.pserver.revok.RemoteObject;
 
 /**
@@ -99,15 +98,15 @@ public class RemoteInvocationHandler<T> implements InvocationHandler {
     String oname = (!objname.contains(".") 
         ? objname.concat(".")
         .concat(ints[0].getSimpleName()) : objname);
-    RemoteMethodBuilder builder = RemoteMethod.builder()
+    RemoteMethod rem = new RemoteMethod()
         .setObjectName(oname)
         .setMethodName(method.getName());
     
     if(args != null && args.length > 0) {
-      builder.setArgumentTypes(method.getParameterTypes())
-          .setArguments(args);
+      rem.setTypes(method.getParameterTypes())
+          .setParameters(args);
     }
-    Object ret = rob.invoke(builder.create());
+    Object ret = rob.invoke(rem);
     if(instance != null && ret != null 
         && instance.getClass().isInstance(ret)) {
       ret = instance;

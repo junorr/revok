@@ -143,7 +143,8 @@ public class RunnableConnectionHandler implements Runnable {
       if(msg != null 
           && !msg.contains(READ_ERROR)
           && !msg.contains(CONN_RESET)) {
-        log.error("Error on channel read: %s", e.toString());
+        log.error("Error on channel read");
+        log.error(e);
         if(!Logger.getRootLogger().getAllAppenders().hasMoreElements())
           throw new RuntimeException("Error reading from channel", e);
       }
@@ -165,9 +166,11 @@ public class RunnableConnectionHandler implements Runnable {
       // and log the result sent.
       channel.write(trp);
       //log.info("Response sent: "+ trp.getObject());
-    } catch(IOException e) {
+    } 
+    catch(IOException e) {
       // Log an error occurred on channel writing.
-      log.warn(new IOException("Error writing response", e));
+      log.warn("Error writing response")
+          .warn(e);
       if(!Logger.getRootLogger().getAllAppenders().hasMoreElements())
         throw new RuntimeException("Error writing response", e);
     }
@@ -319,8 +322,7 @@ public class RunnableConnectionHandler implements Runnable {
     OpResult op = new OpResult();
     op.setSuccessOperation(false);
     op.setError(new MethodInvocationException(
-        "[HttpConnectionHandler.InvalidType( Transport )] "
-            + "Server can not handle this object type: "
+        "Server can not handle this object type: "
             + t.getObject().getClass()));
     return pack(op);
   }
@@ -361,7 +363,7 @@ public class RunnableConnectionHandler implements Runnable {
     trp = handleInvoke(trp);
     double time = (System.nanoTime() - start) / 1000000.0;
     
-    log.info("{}  {}  \t->  {}  \t({} ms){}", 
+    log.info("%s  %s  \t->  %s  \t(%f ms)%s", 
         getClientAddress(), req, trp.getObject(), round(time, 1), 
         (time > 300.0 ? "+" : ""));
     
@@ -405,15 +407,15 @@ public class RunnableConnectionHandler implements Runnable {
     if(trp == null 
         || !trp.hasContentEmbedded() 
         || rmt == null 
-        || rmt.getArguments() == null
-        || rmt.getArguments().isEmpty())
+        || rmt.getParameters() == null
+        || rmt.getParameters().isEmpty())
       return;
     
-    for(int i = 0; i < rmt.getArguments().size(); i++) {
-      Object o = rmt.getArguments().get(i);
+    for(int i = 0; i < rmt.getParameters().size(); i++) {
+      Object o = rmt.getParameters().get(i);
       if(o != null && FakeInputStreamRef.class
           .isAssignableFrom(o.getClass())) {
-        rmt.getArguments().set(i, trp.getInputStream());
+        rmt.getParameters().set(i, trp.getInputStream());
       }
     }//for
   }

@@ -28,6 +28,8 @@ import us.pserver.revok.channel.Channel;
 import us.pserver.revok.protocol.Transport;
 import us.pserver.revok.container.Credentials;
 import us.pserver.revok.factory.ChannelFactory;
+import us.pserver.revok.factory.ChannelFactoryBuilder;
+import us.pserver.revok.protocol.JsonSerializer;
 import us.pserver.revok.protocol.ObjectSerializer;
 import us.pserver.revok.proxy.RemoteInvocationHandler;
 import us.pserver.revok.protocol.FakeInputStreamRef;
@@ -36,36 +38,60 @@ import us.pserver.tools.Valid;
 /**
  * Represents a remote object for methods invocation.
  * 
- * @author Juno Roesler - juno@pserver.com
- * @version 1.1 - 201506
+ * @author Juno Roesler - juno.rr@gmail.com
+ * @version 1.0 - 11/11/2013
  */
 public class RemoteObject {
   
-  private final HttpConnector connector;
+  private HttpConnector net;
   
-  private final ChannelFactory<HttpConnector> factory;
+  private ChannelFactory<HttpConnector> factory;
   
   private Channel channel;
   
-  private final ObjectSerializer serial;
+  private Credentials cred;
+  
+  private ObjectSerializer serial;
   
   
   /**
-   * Default constructor without getArguments,
- uses a <code>XmlSerializer</code> for object serialization.
+   * Default constructor without arguments,
+   * uses a <code>XmlSerializer</code> for object serialization.
    */
-  protected RemoteObject(HttpConnector hc, ChannelFactory<HttpConnector> cf, ObjectSerializer os) {
-    connector = Valid.off(hc).forNull()
-        .getOrFail(HttpConnector.class);
-    factory = Valid.off(cf).forNull()
-        .getOrFail(ChannelFactory.class);
-    serial = Valid.off(os).forNull()
-        .getOrFail(ObjectSerializer.class);
+  public RemoteObject() {
+    net = new HttpConnector();
+    factory = ChannelFactoryBuilder.builder()
+        .createHttpRequestChannelFactory();
+    channel = null;
+    cred = null;
+    serial = new JsonSerializer();
   }
   
   
-  public static RemoteObjectBuilder builder() {
-    return new RemoteObjectBuilder();
+  /**
+   * Constructor which receives a <code>HttpConnector</code> 
+   * for network information.
+   * @param con <code>HttpConnector</code>.
+   */
+  public RemoteObject(HttpConnector con) {
+    this();
+    net = Valid.off(con).getOrFail(HttpConnector.class);
+    factory = ChannelFactoryBuilder.builder()
+        .createHttpRequestChannelFactory();
+    serial = new JsonSerializer();
+  }
+  
+  
+  /**
+   * Constructor which receives <code>HttpConnector</code>
+   * and <code>ObjectSerializer</code> for objects serialization.
+   * @param con <code>HttpConnector</code>.
+   * @param serial <code>ObjectSerializer</code> for object serialization.
+   */
+  public RemoteObject(HttpConnector con, ObjectSerializer serial) {
+    this(con);
+    if(serial != null)
+      this.serial = serial;
   }
   
   
@@ -79,11 +105,55 @@ public class RemoteObject {
   
   
   /**
+   * Set the <code>ObjectSerializer</code> for objects serialization.
+   * @param serializer <code>ObjectSerializer</code> for objects serialization.
+   * @return This modified <code>RemoteObject</code> instance.
+   */
+  public RemoteObject setObjectSerializer(ObjectSerializer serializer) {
+    if(serializer != null) {
+      serial = serializer;
+    }
+    return this;
+  }
+  
+  
+  /**
+   * Return the Credentials object to authentication with server.
+   * @return Credentials object.
+   */
+  public Credentials getCredentials() {
+    return cred;
+  }
+  
+  
+  /**
+   * Set the Credentials object to authentication with server.
+   * @param crd The <code>Credentials</code> object.
+   * @return This modified <code>RemoteObject</code> instance.
+   */
+  public RemoteObject setCredentials(Credentials crd) {
+    cred = crd;
+    return this;
+  }
+  
+  
+  /**
    * Get the network informations <code>HttpConnector</code>.
    * @return Network informations <code>HttpConnector</code>.
    */
   public HttpConnector getHttpConnector() {
-    return connector;
+    return net;
+  }
+
+
+  /**
+   * Set the network informations <code>HttpConnector</code>.
+   * @param net Network informations <code>HttpConnector</code>.
+   * @return This modified <code>RemoteObject</code> instance.
+   */
+  public RemoteObject setHttpConnector(HttpConnector net) {
+    this.net = net;
+    return this;
   }
 
 
@@ -96,6 +166,17 @@ public class RemoteObject {
   }
 
 
+  /**
+   * Set the network channel factory.
+   * @param fact Network channel factory <code>ChannelFactory</code>.
+   * @return This modified <code>RemoteObject</code> instance.
+   */
+  public RemoteObject setChannelFactory(ChannelFactory<HttpConnector> fact) {
+    this.factory = fact;
+    return this;
+  }
+  
+  
   /**
    * Get the current network channel in use.
    * @return <code>Channel</code>
@@ -113,11 +194,11 @@ public class RemoteObject {
     if(channel != null && channel.isValid())
       return channel;
     
-    if(connector == null) throw new IllegalStateException(
-        "Cannot create Channel. Invalid NetConnector ["+ connector+ "]");
+    if(net == null) throw new IllegalStateException(
+        "Cannot create Channel. Invalid NetConnector ["+ net+ "]");
     if(factory == null) throw new IllegalStateException(
         "Invalid ChannelFactory ["+ factory+ "]");
-    channel = factory.createChannel(connector, serial);
+    channel = factory.createChannel(net, serial);
     return channel;
   }
   
@@ -145,33 +226,33 @@ public class RemoteObject {
   
   
   /**
-   * Create a Proxy instance of the remote object represented by the specified interface.
-   * Any getMethod invocation in the returned proxy object, will be invoked remotly in the real object on server side.
+   * Create a Proxy instance of the remote object represented by the interface Class passed.
+   * Any method invocation in the returned proxy object, will be invoked remotly in the real object on server side.
    * @param <T> The type of the Proxy Object (same of the Class interface argument).
    * @param namespace The namespace on the server where is stored the remote instance, or the [namespace].[objectname].
-   * @param interfac Class of the Interface.
+   * @param interf Class of Interface representation
    * @return The Proxy object created.
    */
-  public <T> T createRemoteObject(String namespace, Class interfac) {
+  public <T> T createRemoteObject(String namespace, Class interf) {
     if(namespace == null || namespace.trim().isEmpty())
-      throw new IllegalArgumentException("Invalid Class {"+ interfac+ "}");
-    if(interfac == null)
-      throw new IllegalArgumentException("Invalid Class {"+ interfac+ "}");
-    RemoteInvocationHandler handler = new RemoteInvocationHandler(this, namespace);
-    T type = (T) Proxy.newProxyInstance(
-        interfac.getClassLoader(), 
-        new Class[]{interfac}, handler
-    );
-    handler.setInstance(type);
-    return type;
+      throw new IllegalArgumentException(
+          "RemoteObject.createRemoteObject( Class, String )] "
+              + "Invalid Class {"+ interf+ "}");
+    if(interf == null)
+      throw new IllegalArgumentException(
+          "RemoteObject.createRemoteObject( Class, String )] "
+              + "Invalid Class {"+ interf+ "}");
+    return (T) Proxy.newProxyInstance(
+        interf.getClassLoader(), new Class[]{interf}, 
+        new RemoteInvocationHandler(this, namespace));
   }
   
   
   /**
-   * Invoke the remote getMethod.
-   * @param rmt Remote getMethod information <code>RemoteMethod</code>.
-   * @return Remote getMethod return value or <code>null</code>.
-   * @throws MethodInvocationException In case of error invoking the getMethod.
+   * Invoke the remote method.
+   * @param rmt Remote method information <code>RemoteMethod</code>.
+   * @return Remote method return value or <code>null</code>.
+   * @throws MethodInvocationException In case of error invoking the method.
    */
   public Object invoke(RemoteMethod rmt) throws MethodInvocationException {
     if(rmt == null) throw new 
@@ -190,9 +271,9 @@ public class RemoteObject {
   
   
   /**
-   * Invoke the remote getMethod.
-   * @param rmt Remote getMethod information <code>RemoteMethod</code>.
-   * @throws MethodInvocationException In case of error invoking the getMethod.
+   * Invoke the remote method.
+   * @param rmt Remote method information <code>RemoteMethod</code>.
+   * @throws MethodInvocationException In case of error invoking the method.
    */
   public void invokeVoid(RemoteMethod rmt) throws MethodInvocationException {
     this.invoke(rmt);
@@ -200,13 +281,14 @@ public class RemoteObject {
   
   
   /**
-   * Invoke the remote getMethod.
-   * @param rmt Remote getMethod information <code>RemoteMethod</code>.
-   * @return Remote getMethod return value or <code>null</code>.
+   * Invoke the remote method.
+   * @param rmt Remote method information <code>RemoteMethod</code>.
+   * @return Remote method return value or <code>null</code>.
    */
   public OpResult invokeSafe(RemoteMethod rmt) {
     OpResult res = new OpResult();
     try {
+      if(cred != null) rmt.setCredentials(cred);
       Transport trp = new Transport();
       this.checkInputStreamRef(trp, rmt);
       trp.setObject(rmt);
@@ -236,10 +318,10 @@ public class RemoteObject {
   
   
   /**
-   * Invoke the remote getMethod chain.
-   * @param chain Remote getMethod chain information <code>MethodChain</code>.
-   * @return Remote getMethod return value or <code>null</code>.
-   * @throws MethodInvocationException In case of error invoking the getMethod.
+   * Invoke the remote method chain.
+   * @param chain Remote method chain information <code>MethodChain</code>.
+   * @return Remote method return value or <code>null</code>.
+   * @throws MethodInvocationException In case of error invoking the method.
    */
   public Object invoke(MethodChain chain) throws MethodInvocationException {
     this.validateChain(chain);
@@ -255,9 +337,9 @@ public class RemoteObject {
   
   
   /**
-   * Validates the getMethod chain.
+   * Validates the method chain.
    * @param chain <code>MethodChain</code>
-   * @throws IllegalArgumentException If the getMethod chain is not valid.
+   * @throws IllegalArgumentException If the method chain is not valid.
    */
   private void validateChain(MethodChain chain) throws IllegalArgumentException {
     if(chain == null || chain.methods().isEmpty()) 
@@ -268,9 +350,9 @@ public class RemoteObject {
   
   /**
    * 
-   * Invoke the remote getMethod chain.
-   * @param chain Remote getMethod chain information <code>MethodChain</code>.
-   * @throws MethodInvocationException In case of error invoking the getMethod.
+   * Invoke the remote method chain.
+   * @param chain Remote method chain information <code>MethodChain</code>.
+   * @throws MethodInvocationException In case of error invoking the method.
    */
   public void invokeVoid(MethodChain chain) throws MethodInvocationException {
     this.invoke(chain);
@@ -278,14 +360,15 @@ public class RemoteObject {
   
   
   /**
-   * Invoke the remote getMethod chain.
-   * @param chain Remote getMethod chain information <code>MethodChain</code>.
-   * @return Remote getMethod return value or <code>null</code>.
+   * Invoke the remote method chain.
+   * @param chain Remote method chain information <code>MethodChain</code>.
+   * @return Remote method return value or <code>null</code>.
    */
   public OpResult invokeSafe(MethodChain chain) {
     this.validateChain(chain);
     OpResult res = new OpResult();
     try {
+      if(cred != null) chain.current().setCredentials(cred);
       Transport trp = new Transport();
       this.checkInputStreamRef(trp, chain.current());
       trp.setObject(chain.rewind());
@@ -314,21 +397,22 @@ public class RemoteObject {
   
   
   /**
-   * Check for <code>InputStream</code> reference in getMethod getArguments.
-   * @param t <code>Transport</code> with remote getMethod object.
-   * @param r Remote getMethod object.
+   * Check for <code>InputStream</code> reference in method arguments.
+   * @param t <code>Transport</code> with remote method object.
+   * @param r Remote method object.
    */
   private void checkInputStreamRef(Transport t, RemoteMethod r) {
     if(t == null || r == null) return;
-    if(r.getArgumentTypes().isEmpty()) return;
-    for(int i = 0; i < r.getArgumentTypes().size(); i++) {
-      Class c = r.getArgumentTypes().get(i);
+    if(r.getTypes().isEmpty()) r.extractTypesFromArgs();
+    if(r.getTypes().isEmpty()) return;
+    for(int i = 0; i < r.getTypes().size(); i++) {
+      Class c = r.getTypes().get(i);
       if(InputStream.class.isAssignableFrom(c)) {
-        Object o = r.getArguments().get(i);
+        Object o = r.getParameters().get(i);
         if(o != null && InputStream.class
             .isAssignableFrom(o.getClass())) {
           t.setInputStream((InputStream) o);
-          r.getArguments().set(i, new FakeInputStreamRef());
+          r.getParameters().set(i, new FakeInputStreamRef());
         }
       }
     }
@@ -345,7 +429,7 @@ public class RemoteObject {
     if(trp == null) throw new 
         IllegalArgumentException(
         "Invalid Null RemoteMethod");
-    if(connector == null) throw new 
+    if(net == null) throw new 
         IllegalStateException(
         "Invalid Null NetConnector");
     

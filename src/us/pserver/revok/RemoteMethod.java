@@ -23,59 +23,71 @@ package us.pserver.revok;
 
 import us.pserver.revok.container.Credentials;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import us.pserver.revok.http.HttpConsts;
-import us.pserver.tools.Valid;
+import us.pserver.revok.reflect.Invoker;
 
 /**
- * Represents a remote getMethod to be invoked in a remote object.
- * Contains informations about getMethod name, object name, getArguments and getArgumentTypes.
+ * Represents a remote getMethodName to be invoked on a remote object.
+ * Contains informations about getMethodName name, object name, arguments and setTypes.
  * 
  * @author Juno Roesler - juno@pserver.com
  * @version 1.1 - 201506
  */
 public class RemoteMethod {
   
-  private final String objname;
+  private String objname;
   
-  private final String method;
+  private String method;
   
-  private final List arguments;
+  private List parameters;
   
-  private final List<Class> types;
+  private List<Class> types;
   
-  private final Credentials cred;
+  private Credentials cred;
   
-  private String returnVariable;
+  private String retvar;
   
   
   /**
-   * Default Constructor without getArguments.
+   * Default Constructor without arguments.
    */
-  protected RemoteMethod(String obj, String meth, List args, List<Class> tps, Credentials crd, String retvar) { 
-    objname = Valid.off(obj).forNull()
-        .getOrFail("Invalid object name: ");
-    method = Valid.off(meth).forEmpty()
-        .getOrFail("Invalid method name: ");
-    arguments = Collections.unmodifiableList(
-        Valid.off(args).forNull()
-            .getOrFail("Invalid arguments list: ")
-    );
-    types = Collections.unmodifiableList(
-        Valid.off(tps).forNull()
-            .getOrFail("Invalid argument types list: ")
-    );
-    cred = crd;
-    returnVariable = retvar;
-  }
-  
-  
-  public static RemoteMethodBuilder builder() {
-    return new RemoteMethodBuilder();
+  public RemoteMethod() {
+    objname = null;
+    method = null;
+    parameters = new LinkedList();
+    types = new LinkedList<>();
+    cred = null;
+    retvar = null;
   }
 
+  
+  /**
+   * Constructor which receives object and getMethodName names.
+   * @param ownerObject Owner object name.
+   * @param name Method name.
+   */
+  public RemoteMethod(String ownerObject, String name) {
+    method = name;
+    objname = ownerObject;
+    parameters = new LinkedList();
+    types = new LinkedList<>();
+    cred = null;
+  }
+  
+  
+  /**
+   * Set the authentication <code>Credentials</code> object with server.
+   * @param c Credentials object.
+   * @return This modified <code>RemoteMethod</code> instance.
+   */
+  public RemoteMethod setCredentials(Credentials c) {
+    cred = c;
+    return this;
+  }
+  
   
   /**
    * Return the Credentials object to authentication with server.
@@ -87,37 +99,114 @@ public class RemoteMethod {
   
   
   /**
-   * Get the return variable in the server.
-   * @return Variable name <code>String</code>.
+   * Adds a method parameter type and value.
+   * @param type Method parameter type.
+   * @param obj Method parameter value.
+   * @return This modified <code>RemoteMethod</code> instance.
    */
-  public String getServerReturnVariable() {
-    return returnVariable;
+  public RemoteMethod addParameter(Class type, Object obj) {
+    if(type != null && obj != null) {
+      types.add(type);
+      parameters.add(obj);
+    }
+    return this;
+  }
+  
+
+  /**
+   * Adds a getMethodName argument.
+   * @param obj Method argument.
+   * @return This modified <code>RemoteMethod</code> instance.
+   */
+  public RemoteMethod addParameter(Object obj) {
+    parameters.add(obj);
+    return this;
+  }
+  
+
+  /**
+   * Adds a class type of a getMethodName argument.
+   * @param cls Class type.
+   * @return This modified <code>RemoteMethod</code> instance.
+   */
+  public RemoteMethod addType(Class cls) {
+    if(cls != null)
+      types.add(cls);
+    return this;
   }
   
   
   /**
-   * Return a list with the classes of the getMethod getArguments.
+   * Set a variable in the server which will receive the 
+ returned value of the getMethodName. The variable name must 
+   * start with '$' and contains the namespace, dot separeted (i.e: '$global.myvar').
+   * @param var Variable name.
+   * @return This modified <code>RemoteMethod</code> instance.
+   */
+  public RemoteMethod setReturnVariable(String var) {
+    if(var == null || !var.startsWith(Invoker.VAR_SIGNAL))
+      throw new IllegalArgumentException(
+          "Invalid var name {"+ var
+              + "}. Variables must starts with '"
+              + Invoker.VAR_SIGNAL+ "'"
+      );
+    retvar = var;
+    return this;
+  }
+  
+  
+  /**
+   * Get the return variable in the server.
+   * @return Variable name <code>String</code>.
+   */
+  public String getReturnVariable() {
+    return retvar;
+  }
+  
+  
+  /**
+   * Clear the argument list.
+   * @return This modified <code>RemoteMethod</code> instance.
+   */
+  public RemoteMethod clearParameters() {
+    parameters.clear();
+    return this;
+  }
+  
+  
+  /**
+   * Clear the list of classes of the getMethodName arguments.
+   * @return This modified <code>RemoteMethod</code> instance.
+   */
+  public RemoteMethod clearTypes() {
+    types.clear();
+    return this;
+  }
+  
+  
+  /**
+   * Return a list with the classes of the getMethodName arguments.
    * @return java.util.List
    */
-  public List<Class> getArgumentTypes() {
+  public List<Class> getTypes() {
     return types;
   }
   
   
   /**
-   * Return a list with the getMethod getArguments.
+   * Return a list with the getMethodName arguments.
    * @return java.util.List
    */
-  public List getArguments() {
-    return arguments;
+  public List getParameters() {
+    return parameters;
   }
   
   
   /**
-   * Return an array with the classes of the getMethod getArguments.
+   * Return an array with the classes of the getMethodName arguments.
    * @return Array of Class
    */
-  public Class[] typesArray() {
+  public Class[] getTypesArray() {
     Class[] cls = new Class[types.size()];
     if(types.isEmpty()) return cls;
     return types.toArray(cls);
@@ -125,11 +214,63 @@ public class RemoteMethod {
   
   
   /**
-   * Get the getMethod name.
+   * Set the setTypes of the getMethodName arguments.
+   * @param cls Classes dos tipos de argumentos.
+   * @return This modified <code>RemoteMethod</code> instance.
+   */
+  public RemoteMethod setTypes(Class ... cls) {
+    types.addAll(Arrays.asList(cls));
+    return this;
+  }
+  
+  
+  /**
+   * Extract the setTypes of getMethodName arguments 
+ (this getMethodName is imprecise and may cause 
+ invocation errors i.e: double/java.lang.Double).
+   * @return This modified <code>RemoteMethod</code> instance.
+   */
+  public RemoteMethod extractTypesFromArgs() {
+    if(parameters.isEmpty()) return null;
+    types.clear();
+    for(int i = 0; i < parameters.size(); i++) {
+      types.add(parameters.get(i).getClass());
+    }
+    return this;
+  }
+  
+  
+  /**
+   * Get the getMethodName name.
    * @return Method name.
    */
-  public String getMethod() {
+  public String getMethodName() {
     return method;
+  }
+
+
+  /**
+   * Set the getMethodName name.
+   * @param name Method name.
+   * @return This modified <code>RemoteMethod</code> instance.
+   */
+  public RemoteMethod setMethodName(String name) {
+    this.method = name;
+    return this;
+  }
+
+
+  /**
+   * Set the getMethodName arguments.
+   * @param objs Method arguments.
+   * @return This modified <code>RemoteMethod</code> instance.
+   */
+  public RemoteMethod setParameters(Object ... objs) {
+    if(objs != null && objs.length > 0) {
+      parameters.clear();
+      parameters.addAll(Arrays.asList(objs));
+    }
+    return this;
   }
 
 
@@ -139,6 +280,17 @@ public class RemoteMethod {
    */
   public String getObjectName() {
     return objname;
+  }
+
+
+  /**
+   * Set the object name.
+   * @param objName Object name.
+   * @return This modified <code>RemoteMethod</code> instance.
+   */
+  public RemoteMethod setObjectName(String objName) {
+    this.objname = objName;
+    return this;
   }
 
 
@@ -177,8 +329,8 @@ public class RemoteMethod {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    if(returnVariable != null) {
-      sb.append(returnVariable)
+    if(retvar != null) {
+      sb.append(retvar)
           .append(HttpConsts.SP)
           .append(HttpConsts.EQ)
           .append(HttpConsts.SP);
@@ -187,10 +339,10 @@ public class RemoteMethod {
       sb.append(objname);
     }
     sb.append(".").append(method).append("( ");
-    if(!arguments.isEmpty()) {
-      for(int i = 0; i < arguments.size(); i++) {
-        sb.append(arguments.get(i));
-        if(i < arguments.size() -1)
+    if(!parameters.isEmpty()) {
+      for(int i = 0; i < parameters.size(); i++) {
+        sb.append(parameters.get(i));
+        if(i < parameters.size() -1)
           sb.append(", ");
       }
     }

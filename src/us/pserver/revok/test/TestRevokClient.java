@@ -33,6 +33,7 @@ import us.pserver.revok.container.Credentials;
 import us.pserver.revok.protocol.JsonSerializer;
 import us.pserver.revok.server.Server;
 import us.pserver.streams.IO;
+import us.pserver.tools.timer.Timer;
 
 /**
  * Test class for revok client making remote getMethod calls.
@@ -48,20 +49,18 @@ public class TestRevokClient {
     //HttpConnector hc = new HttpConnector("http://localhost:8080/revokServletTest/revok");
     HttpConnector hc = new HttpConnector("localhost:9995");
     Credentials cred = new Credentials("juno", "1234".getBytes());
-    RemoteObject rob = RemoteObject.builder()
-        .setConnector(hc)
-        .setSerial(new JsonSerializer())
-        .create();
+    RemoteObject rob = new RemoteObject(
+        hc, new JsonSerializer()
+    );
     RemoteMethod rm = null;
     List<String> mts = null;
     
     
     System.out.println("----------------------------------");
-    rm = RemoteMethod.builder()
+    rm = new RemoteMethod()
         .setObjectName("global.ObjectContainer")
         .setMethodName("listMethods")
-        .addArgument(String.class, "calc.ICalculator")
-        .create();
+        .addParameter(String.class, "calc.ICalculator");
     System.out.println("* Invoke      --> "+ rm);
     mts = (List<String>) rob.invoke(rm);
     System.out.println("* mts.size="+ mts.size());
@@ -69,11 +68,10 @@ public class TestRevokClient {
     
     
     System.out.println("----------------------------------");
-    rm = RemoteMethod.builder()
+    rm = new RemoteMethod()
         .setObjectName("global.ObjectContainer")
         .setMethodName("objects")
-        .addArgument(String.class, "global")
-        .create();
+        .addParameter(String.class, "global");
     System.out.println("* Invoke      --> "+ rm);
     mts = (List<String>) rob.invoke(rm);
     System.out.println("* objs.size="+ mts.size());
@@ -81,20 +79,18 @@ public class TestRevokClient {
     
     
     System.out.println("----------------------------------");
-    chain.add(RemoteMethod.builder()
+    chain.add(new RemoteMethod()
         .setObjectName("calc.ICalculator")
         .setMethodName("xyz")
-        .setArgumentTypes(double.class, double.class, double.class)
-        .setArguments(113.0, 7.0, 0.0)
-        .create()
+        .setTypes(double.class, double.class, double.class)
+        .setParameters(113.0, 7.0, 0.0)
     );
     chain.add("div");
     chain.add("print");
     chain.add("moveZX");
-    chain.add(RemoteMethod.builder()
+    chain.add(new RemoteMethod()
         .setMethodName("round")
-        .addArgument(int.class, 4)
-        .create()
+        .addParameter(int.class, 4)
     );
     chain.add("z");
     System.out.println("* Invoke      --> "+ chain);
@@ -103,22 +99,20 @@ public class TestRevokClient {
     
     
     System.out.println("----------------------------------");
-    rm = RemoteMethod.builder()
+    rm = new RemoteMethod()
         .setObjectName("calc.ICalculator")
         .setMethodName("z")
-        .setServerReturnVariable("$calc.temp")
-        .create();
+        .setReturnVariable("$calc.temp");
     System.out.println("* Invoke      --> "+ rm);
     System.out.println(">> "+ rob.invoke(rm));
     
     
     System.out.println("----------------------------------");
-    rm = RemoteMethod.builder()
+    rm = new RemoteMethod()
         .setObjectName("calc.ICalculator")
         .setMethodName("sum")
-        .setArgumentTypes(double.class, double.class)
-        .setArguments("$calc.temp", 30.0)
-        .create();
+        .setTypes(double.class, double.class)
+        .setParameters("$calc.temp", 30.0);
     System.out.println("* Invoke      --> "+ rm);
     System.out.println(">> "+ rob.invoke(rm));
     
@@ -137,7 +131,13 @@ public class TestRevokClient {
     System.out.print("* Invoking IStreamHandler.read( "+ p+ " ) = ");
     InputStream is = handler.read(p);
     System.out.println(is+ ", available="+ is.available());
+    Timer nt = new Timer.Nanos().start();
+    Timer mt = new Timer.Millis().start();
     System.out.println("* Bytes Transferred="+ IO.tr(is, IO.os(IO.p("/storage/pic-2.jpg"))));
+    nt.lapAndStop();
+    mt.lapAndStop();
+    System.out.println("* Nanos  from file transfer: "+ nt);
+    System.out.println("* Millis from file transfer: "+ mt);
     
     System.out.println("----- ProxyClass: Server -----");
     Server srv = rob.createRemoteObject("global.RevokServer", Server.class);

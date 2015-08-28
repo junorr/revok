@@ -164,7 +164,7 @@ public class Invoker {
   private Object invokeAndSave(RemoteMethod mth) throws MethodInvocationException, AuthenticationException {
     Object res = invoke(mth, 0);
     if(res != null) {
-      container.put(mth.getServerReturnVariable().substring(1), res);
+      container.put(mth.getReturnVariable().substring(1), res);
     }
     return res;
   }
@@ -179,7 +179,7 @@ public class Invoker {
    * @throws AuthenticationException If authentication fails.
    */
   public Object invoke(RemoteMethod mth) throws MethodInvocationException, AuthenticationException {
-    if(mth.getServerReturnVariable() != null) {
+    if(mth.getReturnVariable() != null) {
       return invokeAndSave(mth);
     }
     else {
@@ -196,13 +196,13 @@ public class Invoker {
    * @throws AuthenticationException If authentication fails.
    */
   private void processArgs(RemoteMethod mth) throws MethodInvocationException, AuthenticationException {
-    List args = (List) mth.getArguments().stream()
+    List args = (List) mth.getParameters().stream()
         .filter(o->o.toString().startsWith(VAR_SIGNAL))
         .collect(Collectors.toList());
     for(Object o : args) {
       Object x = getObject(o.toString().substring(1));
-      int idx = mth.getArguments().indexOf(o);
-      mth.getArguments().set(idx, x);
+      int idx = mth.getParameters().indexOf(o);
+      mth.getParameters().set(idx, x);
     }
   }
   
@@ -216,7 +216,7 @@ public class Invoker {
    */
   private Object invoke(RemoteMethod mth, int currTry) throws MethodInvocationException, AuthenticationException {
     if(container == null || mth == null 
-        || mth.getMethod() == null 
+        || mth.getMethodName() == null 
         || tries < 1 || ref == null) 
       throw new IllegalStateException(
           "Invoker not properly configured");
@@ -229,8 +229,8 @@ public class Invoker {
     }
     
     processArgs(mth);
-    Class[] cls = (mth.getArgumentTypes().isEmpty() ? null : mth.typesArray());
-    ref.on(target).method(mth.getMethod(), cls);
+    Class[] cls = (mth.getTypes().isEmpty() ? null : mth.getTypesArray());
+    ref.on(target).method(mth.getMethodName(), cls);
     
     if(!ref.isMethodPresent()) {
       if(currTry < tries)
@@ -239,8 +239,8 @@ public class Invoker {
       throw new MethodInvocationException("Method not found: "+ mth);
     }
     
-    Object ret = ref.invoke((mth.getArguments().isEmpty() 
-        ? null : mth.getArguments().toArray()));
+    Object ret = ref.invoke((mth.getParameters().isEmpty() 
+        ? null : mth.getParameters().toArray()));
       
     if(ref.hasError()) {
       if(currTry < tries) 

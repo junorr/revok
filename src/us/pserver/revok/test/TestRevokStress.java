@@ -23,7 +23,6 @@ package us.pserver.revok.test;
 
 import java.io.PrintStream;
 import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -33,7 +32,6 @@ import java.util.concurrent.TimeUnit;
 import us.pserver.log.LogHelper;
 import us.pserver.revok.HttpConnector;
 import us.pserver.revok.RemoteObject;
-import us.pserver.revok.server.Server;
 import us.pserver.streams.NullOutput;
 import us.pserver.streams.Instance;
 
@@ -58,10 +56,12 @@ public class TestRevokStress implements Runnable {
   public void run() {
     //Log log = LogFactory.getSimpleLog(Thread.currentThread().getName());
     try {
-      //RemoteObject rob = new RemoteObject(new HttpConnector("http://localhost:8080/revokServletTest/revok"));
-      RemoteObject rob = RemoteObject.builder()
-          .setConnector(new HttpConnector("localhost:9995"))
-          .create();
+      /*RemoteObject rob = new RemoteObject(
+          new HttpConnector("http://localhost:8080/revokServletTest/revok")
+      );*/
+      RemoteObject rob = new RemoteObject(
+          new HttpConnector("localhost:9995")
+      );
       ICalculator calc = rob.createRemoteObject("calc", ICalculator.class);
       double arg1 = random();
       double arg2 = random();

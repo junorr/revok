@@ -27,6 +27,7 @@ import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 import org.apache.http.HttpServerConnection;
 import org.apache.http.impl.DefaultBHttpServerConnection;
 import org.apache.log4j.Logger;
@@ -118,9 +119,7 @@ public class RevokServer extends AbstractServer {
   public RevokServer(ObjectContainer cont, HttpConnector hcon) {
     this(cont);
     if(con == null) throw new
-        IllegalArgumentException(
-            "[RevokServer( ObjectContainer, HttpConnector )] "
-                + "Invalid NetConnector: "+ con);
+        IllegalArgumentException("Invalid NetConnector: "+ con);
     this.con = hcon;
   }
   
@@ -253,14 +252,14 @@ public class RevokServer extends AbstractServer {
    */
   private void preStart() {
     if(con == null)
-      throw new IllegalStateException("[RevokServer.preStart()] "
-          + "Invalid NetConnector ["+ con + "]");
+      throw new IllegalStateException(
+          "Invalid NetConnector ["+ con + "]");
     if(factory == null)
-      throw new IllegalArgumentException("[RevokServer.preStart()] "
-          + "Invalid ChannelFactory ["+ factory+ "]");
+      throw new IllegalArgumentException(
+          "Invalid ChannelFactory ["+ factory+ "]");
     if(container == null)
-      throw new IllegalArgumentException("[RevokServer.preStart()] "
-          + "Invalid ObjectContainer ["+ container+ "]");
+      throw new IllegalArgumentException(
+          "Invalid ObjectContainer ["+ container+ "]");
     
     log.info("Starting RevokServer...");
     setRunning(true);
