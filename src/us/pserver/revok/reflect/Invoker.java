@@ -21,7 +21,6 @@
 
 package us.pserver.revok.reflect;
 
-import com.jpower.rfl.Reflector;
 import java.util.List;
 import java.util.stream.Collectors;
 import us.pserver.revok.MethodInvocationException;
@@ -30,6 +29,7 @@ import us.pserver.revok.container.AuthenticationException;
 import us.pserver.revok.container.Credentials;
 import us.pserver.revok.container.ObjectContainer;
 import static us.pserver.revok.reflect.Invoker.DEFAULT_INVOKE_TRIES;
+import us.pserver.tools.Reflector;
 import us.pserver.tools.Valid;
 
 

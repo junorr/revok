@@ -21,7 +21,8 @@
 
 package us.pserver.revok.servlet;
 
-import com.jpower.rfl.Reflector;
+import us.pserver.tools.Reflector;
+
 
 /**
  * Represents an object to be exposed for RPC calls on the <code>RevokServlet</code>,

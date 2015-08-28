@@ -21,13 +21,13 @@
 
 package us.pserver.revok.container;
 
-import com.jpower.rfl.Reflector;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import us.pserver.tools.Reflector;
 import us.pserver.tools.Valid;
 
 

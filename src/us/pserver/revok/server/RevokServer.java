@@ -27,7 +27,6 @@ import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
 import org.apache.http.HttpServerConnection;
 import org.apache.http.impl.DefaultBHttpServerConnection;
 import org.apache.log4j.Logger;

@@ -22,7 +22,6 @@
 package us.pserver.revok.servlet;
 
 import us.pserver.revok.channel.ServletChannel;
-import com.jpower.rfl.Reflector;
 import java.util.List;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -38,6 +37,7 @@ import us.pserver.revok.container.ObjectContainer;
 import us.pserver.revok.protocol.RunnableConnectionHandler;
 import us.pserver.revok.protocol.JsonSerializer;
 import us.pserver.revok.protocol.ObjectSerializer;
+import us.pserver.tools.Reflector;
 
 /**
  * Servlet to be embeded in a servlet container, for handling 
