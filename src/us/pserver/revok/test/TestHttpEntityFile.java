@@ -47,15 +47,17 @@ public class TestHttpEntityFile {
         .put("Hello!")
         .put(new FileInputStream("/storage/pic.jpg"));
     
+    Timer tm = new Timer.Nanos().start();
     HttpEntityParser par = HttpEntityParser.instance()
         .enableGZipCoder()
         .parse(fac.createStream());
+    System.out.println("* time to parse: "+ tm.stop());
     
     System.out.println("par.getCryptKey()="+par.getCryptKey());
     System.out.println("par.getObject()="+par.getObject());
     System.out.println("par.getInputStream()="+par.getInputStream());
     
-    Timer tm = new Timer.Nanos().start();
+    tm = new Timer.Nanos().start();
     StreamUtils.transfer(par.getInputStream(), new FileOutputStream("/storage/pic.dec.jpg"));
     System.out.println("* time decoding: "+ tm.lapAndStop());
   }

@@ -30,7 +30,7 @@ import us.pserver.cdr.crypt.CryptKey;
 import us.pserver.revok.protocol.JsonSerializer;
 import us.pserver.revok.protocol.ObjectSerializer;
 import us.pserver.streams.MixedWriteBuffer;
-import us.pserver.streams.StoppeableInputStream;
+import us.pserver.streams.StoppableInputStream;
 import us.pserver.streams.StreamCoderFactory;
 import us.pserver.streams.StreamResult;
 import us.pserver.streams.StreamUtils;
@@ -365,10 +365,10 @@ public class HttpEntityParser {
       return;
     if(XmlConsts.START_STREAM.contains(five)) {
       StreamUtils.skipUntil(is, XmlConsts.GT);
-      input = new StoppeableInputStream(is, 
+      input = new StoppableInputStream(is, 
           new UTF8String(XmlConsts.END_STREAM).getBytes(),
           stream->{ try {
-            StreamUtils.consume(stream.getSource());
+            StreamUtils.consume(stream.getSourceInputStream());
             stream.close();
           } catch(IOException e) {}}
       );
