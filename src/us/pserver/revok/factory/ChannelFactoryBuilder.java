@@ -48,7 +48,7 @@ public class ChannelFactoryBuilder {
   public ChannelFactoryBuilder() {
     gzip = true; 
     crypt = true;
-    algo = CryptAlgorithm.AES_CBC_PKCS5;
+    algo = CryptAlgorithm.AES_CBC_256_PKCS5;
   }
   
   

@@ -29,10 +29,12 @@ import org.apache.http.util.EntityUtils;
 import us.pserver.cdr.crypt.CryptKey;
 import us.pserver.revok.protocol.JsonSerializer;
 import us.pserver.revok.protocol.ObjectSerializer;
-import us.pserver.streams.IO;
 import us.pserver.streams.MixedWriteBuffer;
+import us.pserver.streams.StoppeableInputStream;
+import us.pserver.streams.StreamCoderFactory;
 import us.pserver.streams.StreamResult;
 import us.pserver.streams.StreamUtils;
+import us.pserver.tools.UTF8String;
 
 /**
  * Parser for reading and converting Http message body in the RPC info.
@@ -44,7 +46,11 @@ public class HttpEntityParser {
 
   private MixedWriteBuffer buffer;
   
+  private final StreamCoderFactory streamCoder;
+  
   private InputStream input;
+  
+  private InputStream decoder;
   
   private Object obj;
   
@@ -57,11 +63,7 @@ public class HttpEntityParser {
    * Default constructor without arguments.
    */
   public HttpEntityParser() {
-    buffer = new MixedWriteBuffer();
-    input = null;
-    obj = null;
-    key = null;
-    serial = new JsonSerializer();
+    this(null);
   }
   
   
@@ -73,12 +75,12 @@ public class HttpEntityParser {
    */
   public HttpEntityParser(ObjectSerializer os) {
     buffer = new MixedWriteBuffer();
-    buffer = new MixedWriteBuffer();
     input = null;
     obj = null;
     key = null;
     if(os == null) os = new JsonSerializer();
     serial = os;
+    streamCoder = StreamCoderFactory.getNew();
   }
   
   
@@ -136,7 +138,7 @@ public class HttpEntityParser {
    */
   public HttpEntityParser enableCryptCoder(CryptKey key) {
     if(key != null) {
-      buffer.getCoderFactory().setCryptCoderEnabled(true, key);
+      streamCoder.setCryptCoderEnabled(true, key);
     }
     return this;
   }
@@ -148,7 +150,11 @@ public class HttpEntityParser {
    * @return This modified <code>HttpEntityFactory</code> instance.
    */
   public HttpEntityParser disableAllCoders() {
-    buffer.getCoderFactory().clearCoders();
+    if(streamCoder.isAnyCoderEnabled()) {
+      streamCoder.setBase64CoderEnabled(false)
+          .setCryptCoderEnabled(false, null)
+          .setGZipCoderEnabled(false);
+    }
     return this;
   }
   
@@ -159,7 +165,7 @@ public class HttpEntityParser {
    * @return This modified <code>HttpEntityFactory</code> instance.
    */
   public HttpEntityParser disableCryptCoder() {
-    buffer.getCoderFactory().setCryptCoderEnabled(false, null);
+    streamCoder.setCryptCoderEnabled(false, null);
     return this;
   }
   
@@ -170,7 +176,7 @@ public class HttpEntityParser {
    * @return This modified <code>HttpEntityFactory</code> instance.
    */
   public HttpEntityParser enableGZipCoder() {
-    buffer.getCoderFactory().setGZipCoderEnabled(true);
+    streamCoder.setGZipCoderEnabled(true);
     return this;
   }
   
@@ -181,7 +187,7 @@ public class HttpEntityParser {
    * @return This modified <code>HttpEntityFactory</code> instance.
    */
   public HttpEntityParser disableGZipCoder() {
-    buffer.getCoderFactory().setGZipCoderEnabled(false);
+    streamCoder.setGZipCoderEnabled(false);
     return this;
   }
   
@@ -192,7 +198,7 @@ public class HttpEntityParser {
    * @return This modified <code>HttpEntityFactory</code> instance.
    */
   public HttpEntityParser enableBase64Coder() {
-    buffer.getCoderFactory().setBase64CoderEnabled(true);
+    streamCoder.setBase64CoderEnabled(true);
     return this;
   }
   
@@ -203,7 +209,7 @@ public class HttpEntityParser {
    * @return This modified <code>HttpEntityFactory</code> instance.
    */
   public HttpEntityParser disableBase64Coder() {
-    buffer.getCoderFactory().setBase64CoderEnabled(false);
+    streamCoder.setBase64CoderEnabled(false);
     return this;
   }
   
@@ -270,9 +276,7 @@ public class HttpEntityParser {
    */
   public HttpEntityParser parse(HttpEntity entity) throws IOException {
     if(entity == null)
-      throw new IllegalArgumentException(
-          "[EntityParser.parse( HttpEntity )] "
-              + "Invalid HttpEntity {"+ entity+ "}");
+      throw new IllegalArgumentException("Invalid HttpEntity {"+ entity+ "}");
     
     this.parse(entity.getContent());
     EntityUtils.consume(entity);
@@ -288,9 +292,7 @@ public class HttpEntityParser {
    */
   public HttpEntityParser parse(InputStream content) throws IOException {
     if(content == null)
-      throw new IllegalArgumentException(
-          "[EntityParser.parse( InputStream )] "
-              + "Invalid InputStream {"+ content+ "}");
+      throw new IllegalArgumentException("Invalid InputStream {"+ content+ "}");
     
     buffer.clear();
     checkExpectedToken(XmlConsts.START_XML, readFive(content));
@@ -298,14 +300,13 @@ public class HttpEntityParser {
     String five = readFive(content);
     five = tryCryptKey(content, five);
     checkExpectedToken(XmlConsts.START_CONTENT, five);
+    decoder = content;
+    if(streamCoder.isAnyCoderEnabled())
+      decoder = streamCoder.create(content);
     
-    IO.tr(content, buffer.getRawOutputStream());
-    // get decoding stream
-    content = buffer.getReadBuffer().getInputStream();
-    
-    five = readFive(content);
-    five = tryObject(content, five);
-    tryStream(content, five);
+    five = readFive(decoder);
+    five = tryObject(decoder, five);
+    tryStream(decoder, five);
     return this;
   }
   
@@ -321,10 +322,12 @@ public class HttpEntityParser {
     if(five == null || five.trim().isEmpty() || is == null)
       return five;
     if(XmlConsts.START_CRYPT_KEY.contains(five)) {
-      StreamUtils.readUntil(is, XmlConsts.GT);
-      StreamResult sr = StreamUtils.readStringUntil(is, XmlConsts.END_CRYPT_KEY);
+      StreamUtils.skipUntil(is, XmlConsts.GT);
+      StreamResult sr = StreamUtils.readUntil(is, XmlConsts.END_CRYPT_KEY);
       key = CryptKey.fromString(sr.content());
-      this.enableCryptCoder(key);
+      if(!streamCoder.isCryptCoderEnabled()) {
+        this.enableCryptCoder(key);
+      }
       five = readFive(is);
     }
     return five;
@@ -361,10 +364,14 @@ public class HttpEntityParser {
     if(five == null || five.trim().isEmpty() || is == null)
       return;
     if(XmlConsts.START_STREAM.contains(five)) {
-      MixedWriteBuffer inbuf = new MixedWriteBuffer();
-      StreamUtils.readUntil(is, XmlConsts.GT);
-      StreamUtils.transferUntil(is, inbuf.getRawOutputStream(), XmlConsts.END_STREAM);
-      input = inbuf.getReadBuffer().getRawInputStream();
+      StreamUtils.skipUntil(is, XmlConsts.GT);
+      input = new StoppeableInputStream(is, 
+          new UTF8String(XmlConsts.END_STREAM).getBytes(),
+          stream->{ try {
+            StreamUtils.consume(stream.getSource());
+            stream.close();
+          } catch(IOException e) {}}
+      );
     }
   }
   

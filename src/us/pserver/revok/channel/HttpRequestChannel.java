@@ -138,7 +138,7 @@ public class HttpRequestChannel implements Channel {
    * Init some objects for http communication.
    */
   private void init() {
-    algo = CryptAlgorithm.AES_CBC_PKCS5;
+    algo = CryptAlgorithm.AES_CBC_256_PKCS5;
     context = HttpCoreContext.create();
     context.setTargetHost(new HttpHost(
         (netc.getAddress() == null ? "localhost" : netc.getAddress()), netc.getPort()));

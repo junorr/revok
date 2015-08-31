@@ -322,8 +322,8 @@ public class HttpEntityParser {
     if(five == null || five.trim().isEmpty() || is == null)
       return five;
     if(XmlConsts.START_CRYPT_KEY.contains(five)) {
-      StreamUtils.readUntil(is, XmlConsts.GT);
-      StreamResult sr = StreamUtils.readStringUntil(is, XmlConsts.END_CRYPT_KEY);
+      StreamUtils.skipUntil(is, XmlConsts.GT);
+      StreamResult sr = StreamUtils.readUntil(is, XmlConsts.END_CRYPT_KEY);
       key = CryptKey.fromString(sr.content());
       this.enableCryptCoder(key);
       five = readFive(is);
@@ -363,7 +363,7 @@ public class HttpEntityParser {
       return;
     if(XmlConsts.START_STREAM.contains(five)) {
       MixedWriteBuffer inbuf = new MixedWriteBuffer();
-      StreamUtils.readUntil(is, XmlConsts.GT);
+      StreamUtils.skipUntil(is, XmlConsts.GT);
       StreamUtils.transferUntil(is, inbuf.getRawOutputStream(), XmlConsts.END_STREAM);
       input = inbuf.getReadBuffer().getRawInputStream();
     }

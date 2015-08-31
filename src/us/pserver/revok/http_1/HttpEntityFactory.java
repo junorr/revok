@@ -21,7 +21,6 @@
 
 package us.pserver.revok.http_1;
 
-import us.pserver.revok.http.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -398,7 +397,7 @@ public class HttpEntityFactory {
     HttpEntityFactory fac = HttpEntityFactory.instance(new XmlSerializer())
         .enableGZipCoder()
         .enableCryptCoder(
-            CryptKey.createRandomKey(CryptAlgorithm.AES_CBC_PKCS5));
+            CryptKey.createRandomKey(CryptAlgorithm.AES_CBC_256_PKCS5));
     class MSG {
       String str;
       public MSG(String s) { str = s; }
