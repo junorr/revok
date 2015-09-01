@@ -323,7 +323,7 @@ public class HttpEntityParser {
       return five;
     if(XmlConsts.START_CRYPT_KEY.contains(five)) {
       StreamUtils.skipUntil(is, XmlConsts.GT);
-      StreamResult sr = StreamUtils.readUntil(is, XmlConsts.END_CRYPT_KEY);
+      StreamResult sr = StreamUtils.readStringUntil(is, XmlConsts.END_CRYPT_KEY);
       key = CryptKey.fromString(sr.content());
       this.enableCryptCoder(key);
       five = readFive(is);

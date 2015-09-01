@@ -35,6 +35,7 @@ import us.pserver.streams.StreamCoderFactory;
 import us.pserver.streams.StreamResult;
 import us.pserver.streams.StreamUtils;
 import us.pserver.tools.UTF8String;
+import us.pserver.tools.timer.Timer;
 
 /**
  * Parser for reading and converting Http message body in the RPC info.
@@ -323,7 +324,7 @@ public class HttpEntityParser {
       return five;
     if(XmlConsts.START_CRYPT_KEY.contains(five)) {
       StreamUtils.skipUntil(is, XmlConsts.GT);
-      StreamResult sr = StreamUtils.readUntil(is, XmlConsts.END_CRYPT_KEY);
+      StreamResult sr = StreamUtils.readStringUntil(is, XmlConsts.END_CRYPT_KEY);
       key = CryptKey.fromString(sr.content());
       if(!streamCoder.isCryptCoderEnabled()) {
         this.enableCryptCoder(key);
