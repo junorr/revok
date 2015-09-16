@@ -21,25 +21,23 @@
 
 package us.pserver.revok.http;
 
-import java.io.ByteArrayInputStream;
+import us.pserver.revok.http_1.*;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import org.apache.http.Consts;
 import org.apache.http.HttpEntity;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.InputStreamEntity;
+import org.apache.http.util.EntityUtils;
 import us.pserver.cdr.StringByteConverter;
 import us.pserver.cdr.crypt.CryptAlgorithm;
 import us.pserver.cdr.crypt.CryptKey;
 import us.pserver.revok.protocol.JsonSerializer;
 import us.pserver.revok.protocol.ObjectSerializer;
 import us.pserver.revok.protocol.XmlSerializer;
-import us.pserver.streams.EncoderInputStream;
-import us.pserver.streams.FunnelInputStream;
+import us.pserver.streams.IO;
 import us.pserver.streams.MixedWriteBuffer;
-import us.pserver.streams.StreamCoderFactory;
-import us.pserver.streams.StreamUtils;
-import us.pserver.streams.StringBuilderInputStream;
 
 /**
  * A factory for embed Http RPC info
@@ -63,12 +61,6 @@ public class HttpEntityFactory {
   
   
   private MixedWriteBuffer buffer;
-  
-  private final StreamCoderFactory streamCoder;
-  
-  private final FunnelInputStream funnelRaw;
-  
-  private final FunnelInputStream funnelEnc;
   
   private final StringByteConverter scv;
   
@@ -97,9 +89,6 @@ public class HttpEntityFactory {
     obj = null;
     input = null;
     serial = new JsonSerializer();
-    streamCoder = StreamCoderFactory.getNew();
-    funnelRaw = new FunnelInputStream();
-    funnelEnc = new FunnelInputStream();
   }
   
   
@@ -213,8 +202,8 @@ public class HttpEntityFactory {
    */
   public HttpEntityFactory enableCryptCoder(CryptKey key) {
     if(key != null) {
+      buffer.getCoderFactory().setCryptCoderEnabled(true, key);
       this.key = key;
-      streamCoder.setCryptCoderEnabled(true, key);
     }
     return this;
   }
@@ -226,11 +215,7 @@ public class HttpEntityFactory {
    * @return This modified <code>HttpEntityFactory</code> instance.
    */
   public HttpEntityFactory disableAllCoders() {
-    if(streamCoder.isAnyCoderEnabled()) {
-      streamCoder.setBase64CoderEnabled(false)
-          .setCryptCoderEnabled(false, null)
-          .setGZipCoderEnabled(false);
-    }
+    buffer.getCoderFactory().clearCoders();
     return this;
   }
   
@@ -241,7 +226,7 @@ public class HttpEntityFactory {
    * @return This modified <code>HttpEntityFactory</code> instance.
    */
   public HttpEntityFactory disableCryptCoder() {
-    streamCoder.setCryptCoderEnabled(false, null);
+    buffer.getCoderFactory().setCryptCoderEnabled(false, null);
     return this;
   }
   
@@ -252,7 +237,7 @@ public class HttpEntityFactory {
    * @return This modified <code>HttpEntityFactory</code> instance.
    */
   public HttpEntityFactory enableGZipCoder() {
-    streamCoder.setGZipCoderEnabled(true);
+    buffer.getCoderFactory().setGZipCoderEnabled(true);
     return this;
   }
   
@@ -263,7 +248,7 @@ public class HttpEntityFactory {
    * @return This modified <code>HttpEntityFactory</code> instance.
    */
   public HttpEntityFactory disableGZipCoder() {
-    streamCoder.setGZipCoderEnabled(false);
+    buffer.getCoderFactory().setGZipCoderEnabled(false);
     return this;
   }
   
@@ -274,7 +259,7 @@ public class HttpEntityFactory {
    * @return This modified <code>HttpEntityFactory</code> instance.
    */
   public HttpEntityFactory enableBase64Coder() {
-    streamCoder.setBase64CoderEnabled(true);
+    buffer.getCoderFactory().setBase64CoderEnabled(true);
     return this;
   }
   
@@ -285,7 +270,7 @@ public class HttpEntityFactory {
    * @return This modified <code>HttpEntityFactory</code> instance.
    */
   public HttpEntityFactory disableBase64Coder() {
-    streamCoder.setBase64CoderEnabled(false);
+    buffer.getCoderFactory().setBase64CoderEnabled(false);
     return this;
   }
   
@@ -320,13 +305,12 @@ public class HttpEntityFactory {
    * Write the criptography key in http content.
    * @throws IOException In case of error writing.
    */
-  private void appendCryptKey() throws IOException {
+  private void writeCryptKey() throws IOException {
     if(key != null) {
-      StringBuilderInputStream sin = new StringBuilderInputStream()
-          .append(XmlConsts.START_CRYPT_KEY)
-          .append(key.toString())
-          .append(XmlConsts.END_CRYPT_KEY);
-      funnelRaw.append(sin);
+      // write plain data
+      buffer.write(scv.convert(XmlConsts.START_CRYPT_KEY));
+      buffer.write(scv.convert(key.toString()));
+      buffer.write(scv.convert(XmlConsts.END_CRYPT_KEY));
     }
   }
   
@@ -336,18 +320,14 @@ public class HttpEntityFactory {
    * @param os OutputStream for write the content.
    * @throws IOException In case of error writing.
    */
-  private void appendObject() throws IOException {
+  private void writeObject(OutputStream os) throws IOException {
+    if(os == null) return;
     if(obj != null) {
-      funnelRaw.append(
-          new StringBuilderInputStream(XmlConsts.START_CONTENT)
-      );
-      funnelEnc.append(
-          new StringBuilderInputStream(XmlConsts.START_ROB)
-      ).append(
-          new ByteArrayInputStream(serial.toBytes(obj))
-      ).append(
-          new StringBuilderInputStream(XmlConsts.END_ROB)
-      );
+      buffer.write(scv.convert(XmlConsts.START_CONTENT));
+      os.write(scv.convert(XmlConsts.START_ROB));
+      os.write(serial.toBytes(obj));
+      os.write(scv.convert(XmlConsts.END_ROB));
+      os.flush();
     }
   }
   
@@ -357,24 +337,20 @@ public class HttpEntityFactory {
    * @param os OutputStream for write the content.
    * @throws IOException In case of error writing.
    */
-  private void appendInputStream() throws IOException {
+  private void writeInputStream(OutputStream os) throws IOException {
+    if(os == null) return;
     if(input != null) {
       if(obj == null) {
-        funnelRaw.append(
-            new StringBuilderInputStream(XmlConsts.START_CONTENT)
-        );
+        buffer.write(scv.convert(XmlConsts.START_CONTENT));
       }
-      funnelEnc.append(
-          new StringBuilderInputStream(XmlConsts.START_STREAM)
-      ).append(input
-      ).append(
-          new StringBuilderInputStream(XmlConsts.END_STREAM)
-      );
+      os.write(scv.convert(XmlConsts.START_STREAM));
+      IO.tr(input, os);
+      os.write(scv.convert(XmlConsts.END_STREAM));
+      os.flush();
     }
     if(obj != null || input != null) {
-      funnelEnc.append(
-          new StringBuilderInputStream(XmlConsts.END_CONTENT)
-      );
+      os.write(scv.convert(XmlConsts.END_CONTENT));
+      os.flush();
     }
   }
   
@@ -398,61 +374,47 @@ public class HttpEntityFactory {
    * @throws IOException In case of error creating the <code>InputStream</code>.
    */
   public InputStream createStream() throws IOException {
-    if(key == null && obj == null && input == null) {
-      throw new IllegalStateException(String.format(
-          "No content to encode {key=%s, obj=%s, input=%s}", key, obj, input)
-      );
-    }
-    funnelRaw.listStream().clear();
-    funnelEnc.listStream().clear();
-    funnelRaw.append(
-        new StringBuilderInputStream(XmlConsts.START_XML)
-    );
-    appendCryptKey();
-    appendObject();
-    appendInputStream();
-    funnelEnc.append(
-        new StringBuilderInputStream(XmlConsts.END_XML)
-    );
-    InputStream encoding = funnelEnc;
-    if(streamCoder.isAnyCoderEnabled()) {
-      encoding = new EncoderInputStream(funnelEnc, streamCoder);
-    }
-    return new FunnelInputStream()
-        .append(funnelRaw)
-        .append(encoding);
+    if(key == null && obj == null && input == null)
+      return null;
+    
+    buffer.clear();
+    buffer.write(scv.convert(XmlConsts.START_XML));
+    // Encoded OutputStream
+    OutputStream os = buffer.getOutputStream();
+    
+    writeCryptKey();
+    writeObject(os);
+    writeInputStream(os);
+    
+    os.write(scv.convert(XmlConsts.END_XML));
+    os.flush();
+    os.close();
+    
+    return buffer.getReadBuffer().getRawInputStream();
   }
   
   
   public static void main(String[] args) throws IOException {
+    HttpEntityFactory fac = HttpEntityFactory.instance(new XmlSerializer())
+        .enableGZipCoder()
+        .enableCryptCoder(
+            CryptKey.createRandomKey(CryptAlgorithm.AES_CBC_256_PKCS5));
     class MSG {
       String str;
       public MSG(String s) { str = s; }
       public String toString() { return "MSG{str="+ str+ "}"; }
     }
-    CryptKey key = CryptKey.createRandomKey(CryptAlgorithm.AES_CBC_256_PKCS5);
-    HttpEntityFactory fac = HttpEntityFactory.instance()
-        .enableGZipCoder()
-        .enableCryptCoder(key)
-        .put(new MSG("Hello EntityFactory!"));
-    
-    InputStream in = fac.createStream();
-    StreamUtils.transfer(in, System.out);
+    fac.put(new MSG("Hello EntityFactory!"));
+    HttpEntity ent = fac.create();
+    ent.writeTo(System.out);
     System.out.println();
     
-    fac = HttpEntityFactory.instance()
-        .enableGZipCoder()
-        .enableCryptCoder(key)
-        .put(new MSG("Hello EntityFactory!"));
-    in = fac.createStream();
-    HttpEntityParser ep = HttpEntityParser.instance()
-        .enableGZipCoder()
-        .enableCryptCoder(key)
-        ;
-    ep.parse(in);
+    ent = fac.create();
+    HttpEntityParser ep = HttpEntityParser.instance(new XmlSerializer());//.enableGZipCoder();
+    ep.parse(ent);
     System.out.println("* key: "+ ep.getCryptKey());
     System.out.println("* rob: "+ ep.getObject());
-    //EntityUtils.consume(ent);
+    EntityUtils.consume(ent);
   }
   
 }

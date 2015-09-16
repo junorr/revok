@@ -34,6 +34,7 @@ import us.pserver.revok.HttpConnector;
 import us.pserver.revok.RemoteObject;
 import us.pserver.streams.NullOutput;
 import us.pserver.streams.Instance;
+import us.pserver.tools.timer.Timer;
 
 /**
  *
@@ -42,7 +43,7 @@ import us.pserver.streams.Instance;
  */
 public class TestRevokStress implements Runnable {
   
-  private static final List<Double> times = 
+  private static final List<Timer.Nanos> times = 
       Collections.synchronizedList(new LinkedList<>());
   
   private static Instance<Integer> ERRORS = new Instance<>(0);
@@ -54,7 +55,6 @@ public class TestRevokStress implements Runnable {
   
   @Override
   public void run() {
-    //Log log = LogFactory.getSimpleLog(Thread.currentThread().getName());
     try {
       /*RemoteObject rob = new RemoteObject(
           new HttpConnector("http://localhost:8080/revokServletTest/revok")
@@ -65,12 +65,10 @@ public class TestRevokStress implements Runnable {
       ICalculator calc = rob.createRemoteObject("calc", ICalculator.class);
       double arg1 = random();
       double arg2 = random();
-      long start = System.nanoTime();
+      Timer.Nanos tm = new Timer.Nanos().start();
       double r = calc.div(arg1, arg2);
-      long end = System.nanoTime();
-      double time = ((end - start)/1000000.0);
-      times.add(time);
-      //log.info("Call: calc.div( {}, {} ) = {} in {} ms", arg1, arg2, r, time);
+      times.add(tm.stop());
+      //System.out.printf("Call: calc.div( %f, %f ) = %f in %s%n", arg1, arg2, r, tm);
       rob.close();
     } catch(Exception e) {
       ERRORS.increment();
@@ -79,44 +77,47 @@ public class TestRevokStress implements Runnable {
 
   
   public static void main(String[] args) throws InterruptedException {
-    LogHelper log = LogHelper.off(TestRevokStress.class);
     PrintStream ps = new PrintStream(NullOutput.out);
     System.setErr(ps);
     
-    int CALLS = 200;
+    int CALLS = 2;
     int count = 0;
     
-    log.info("Running stress test with {} requests...", CALLS);
-    long start = System.nanoTime();
+    System.out.printf("Running stress test with %d requests...%n", CALLS);
     
     /*ThreadPoolExecutor*/ ForkJoinPool exec = 
         (ForkJoinPool) Executors.newWorkStealingPool();
-    //log.info("ExecutorService.class = {}", exec.getClass());
+    System.out.printf("ExecutorService.class = %s%n", exec.getClass());
+    Timer tm = new Timer.Nanos().start();
     while(count++ < CALLS) {
       exec.submit(new TestRevokStress());
-      //log.info("-  exec.getPoolSize() = {}", exec.getPoolSize());
+      //System.out.printf("-  exec.getPoolSize() = %d%n", exec.getPoolSize());
     }
     exec.shutdown();
     exec.awaitTermination(1000, TimeUnit.SECONDS);
-    double total = (System.nanoTime() - start)/1000000.0;
+    tm.stop();
     
-    Instance<Double> med = new Instance(0.0);
+    Instance<Double> avg = new Instance(0.0);
+    Instance<Double> min = new Instance((double)Integer.MAX_VALUE);
+    Instance<Double> max = new Instance(0.0);
     Instance<Integer> num = new Instance(0);
     times.forEach(t->{
-      med.plus(t);
+      System.out.println("t.lapsAverage(): "+ t.lapsAverage());
+      avg.plus(t.lapsAverage());
+      min.set(Math.min(min.get(), t.lapsAverage()));
+      max.set(Math.max(max.get(), t.lapsAverage()));
       num.increment();
     });
     
     DecimalFormat df = new DecimalFormat("#,##0.00");
-    log.info("Done!")
-        .info("-------------")
-        .info("Total Time..: {} ms", df.format(total))
-        .info("Sum Time....: {} ms", df.format(med.get()))
-        .info("Calls.......: {}", num.get())
-        .info("Errors......: {}", ERRORS.get() + (CALLS - num.get()))
-        .info("Average Time: {} ms", df.format(med.get() / num.get()))
-        .info("Min-Max Time: {} - {} ms", df.format(Collections.min(times)), df.format(Collections.max(times)))
-        ;
+    System.out.println("Done!");
+    System.out.println("-------------");
+    System.out.printf("Time........: %s%n", tm);
+    System.out.printf("Average.....: %f%n", avg.get()/num.get());
+    System.out.printf("Min.........: %f%n", min.get());
+    System.out.printf("Max.........: %f%n", max.get());
+    System.out.printf("Calls.......: %d%n", num.get());
+    System.out.printf("Errors......: %d%n", ERRORS.get() + (CALLS - num.get()));
   }
   
 }

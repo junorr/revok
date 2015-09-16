@@ -29,13 +29,11 @@ import org.apache.http.util.EntityUtils;
 import us.pserver.cdr.crypt.CryptKey;
 import us.pserver.revok.protocol.JsonSerializer;
 import us.pserver.revok.protocol.ObjectSerializer;
-import us.pserver.streams.MixedWriteBuffer;
-import us.pserver.streams.StoppableInputStream;
+import us.pserver.streams.BulkStoppableInputStream;
 import us.pserver.streams.StreamCoderFactory;
 import us.pserver.streams.StreamResult;
 import us.pserver.streams.StreamUtils;
 import us.pserver.tools.UTF8String;
-import us.pserver.tools.timer.Timer;
 
 /**
  * Parser for reading and converting Http message body in the RPC info.
@@ -45,8 +43,6 @@ import us.pserver.tools.timer.Timer;
  */
 public class HttpEntityParser {
 
-  private MixedWriteBuffer buffer;
-  
   private final StreamCoderFactory streamCoder;
   
   private InputStream input;
@@ -75,7 +71,6 @@ public class HttpEntityParser {
    * for objects serialization.
    */
   public HttpEntityParser(ObjectSerializer os) {
-    buffer = new MixedWriteBuffer();
     input = null;
     obj = null;
     key = null;
@@ -280,7 +275,6 @@ public class HttpEntityParser {
       throw new IllegalArgumentException("Invalid HttpEntity {"+ entity+ "}");
     
     this.parse(entity.getContent());
-    EntityUtils.consume(entity);
     return this;
   }
   
@@ -295,7 +289,6 @@ public class HttpEntityParser {
     if(content == null)
       throw new IllegalArgumentException("Invalid InputStream {"+ content+ "}");
     
-    buffer.clear();
     checkExpectedToken(XmlConsts.START_XML, readFive(content));
     
     String five = readFive(content);
@@ -366,10 +359,10 @@ public class HttpEntityParser {
       return;
     if(XmlConsts.START_STREAM.contains(five)) {
       StreamUtils.skipUntil(is, XmlConsts.GT);
-      input = new StoppableInputStream(is, 
+      input = new BulkStoppableInputStream(is, 
           new UTF8String(XmlConsts.END_STREAM).getBytes(),
           stream->{ try {
-            StreamUtils.consume(stream.getSourceInputStream());
+            StreamUtils.consume(stream.getSourceStream());
             stream.close();
           } catch(IOException e) {}}
       );
