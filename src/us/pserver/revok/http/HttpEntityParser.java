@@ -362,7 +362,7 @@ public class HttpEntityParser {
       input = new BulkStoppableInputStream(is, 
           new UTF8String(XmlConsts.END_STREAM).getBytes(),
           stream->{ try {
-            StreamUtils.consume(stream.getSourceStream());
+            StreamUtils.consume(stream.getSourceInputStream());
             stream.close();
           } catch(IOException e) {}}
       );
