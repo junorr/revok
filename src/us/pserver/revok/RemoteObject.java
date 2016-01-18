@@ -33,7 +33,7 @@ import us.pserver.revok.protocol.JsonSerializer;
 import us.pserver.revok.protocol.ObjectSerializer;
 import us.pserver.revok.proxy.RemoteInvocationHandler;
 import us.pserver.revok.protocol.FakeInputStreamRef;
-import us.pserver.tools.Valid;
+import us.pserver.valid.Valid;
 
 /**
  * Represents a remote object for methods invocation.

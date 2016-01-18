@@ -25,12 +25,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import org.apache.http.HttpEntity;
-import org.apache.http.util.EntityUtils;
 import us.pserver.cdr.crypt.CryptKey;
 import us.pserver.revok.protocol.JsonSerializer;
 import us.pserver.revok.protocol.ObjectSerializer;
-import us.pserver.streams.BulkStoppableInputStream;
-import us.pserver.streams.StreamCoderFactory;
+import us.pserver.streams.SearchableInputStream;
+import us.pserver.streams.deprecated.StreamCoderFactory;
 import us.pserver.streams.StreamResult;
 import us.pserver.streams.StreamUtils;
 import us.pserver.tools.UTF8String;
@@ -355,14 +354,16 @@ public class HttpEntityParser {
    * @throws IOException In case of error parsing.
    */
   private void tryStream(InputStream is, String five) throws IOException {
-    if(five == null || five.trim().isEmpty() || is == null)
+    if(five == null 
+				|| five.trim().isEmpty() 
+				|| is == null)
       return;
     if(XmlConsts.START_STREAM.contains(five)) {
       StreamUtils.skipUntil(is, XmlConsts.GT);
-      input = new BulkStoppableInputStream(is, 
-          new UTF8String(XmlConsts.END_STREAM).getBytes(),
+			input = new SearchableInputStream(is, 
+					new UTF8String(XmlConsts.END_STREAM).getBytes(),
           stream->{ try {
-            StreamUtils.consume(stream.getSourceInputStream());
+            StreamUtils.consume(stream.getSourceStream());
             stream.close();
           } catch(IOException e) {}}
       );

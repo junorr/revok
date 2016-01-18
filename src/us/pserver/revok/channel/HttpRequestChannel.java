@@ -46,7 +46,7 @@ import us.pserver.revok.http.HttpEntityParser;
 import us.pserver.revok.http.HttpConsts;
 import us.pserver.revok.protocol.JsonSerializer;
 import us.pserver.revok.protocol.ObjectSerializer;
-import us.pserver.tools.Valid;
+import us.pserver.valid.Valid;
 
 
 /**

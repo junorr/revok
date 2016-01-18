@@ -29,11 +29,10 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeUnit;
-import us.pserver.log.LogHelper;
 import us.pserver.revok.HttpConnector;
 import us.pserver.revok.RemoteObject;
 import us.pserver.streams.NullOutput;
-import us.pserver.streams.Instance;
+import us.pserver.tools.Bean;
 import us.pserver.tools.timer.Timer;
 
 /**
@@ -46,7 +45,7 @@ public class TestRevokStress implements Runnable {
   private static final List<Timer.Nanos> times = 
       Collections.synchronizedList(new LinkedList<>());
   
-  private static Instance<Integer> ERRORS = new Instance<>(0);
+  private static Bean<Integer> ERRORS = new Bean<>(0);
   
   
   public double random() {
@@ -71,7 +70,7 @@ public class TestRevokStress implements Runnable {
       //System.out.printf("Call: calc.div( %f, %f ) = %f in %s%n", arg1, arg2, r, tm);
       rob.close();
     } catch(Exception e) {
-      ERRORS.increment();
+      ERRORS.plus(1);
     }
   }
 
@@ -97,16 +96,16 @@ public class TestRevokStress implements Runnable {
     exec.awaitTermination(1000, TimeUnit.SECONDS);
     tm.stop();
     
-    Instance<Double> avg = new Instance(0.0);
-    Instance<Double> min = new Instance((double)Integer.MAX_VALUE);
-    Instance<Double> max = new Instance(0.0);
-    Instance<Integer> num = new Instance(0);
+    Bean<Double> avg = new Bean(0.0);
+    Bean<Double> min = new Bean((double)Integer.MAX_VALUE);
+    Bean<Double> max = new Bean(0.0);
+    Bean<Integer> num = new Bean(0);
     times.forEach(t->{
       System.out.println("t.lapsAverage(): "+ t.lapsAverage());
       avg.plus(t.lapsAverage());
       min.set(Math.min(min.get(), t.lapsAverage()));
       max.set(Math.max(max.get(), t.lapsAverage()));
-      num.increment();
+      num.plus(1);
     });
     
     DecimalFormat df = new DecimalFormat("#,##0.00");

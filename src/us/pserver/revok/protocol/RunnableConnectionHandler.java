@@ -34,7 +34,7 @@ import us.pserver.revok.channel.Channel;
 import us.pserver.revok.container.AuthenticationException;
 import us.pserver.revok.container.ObjectContainer;
 import us.pserver.revok.reflect.Invoker;
-import us.pserver.tools.Valid;
+import us.pserver.valid.Valid;
 
 /**
  * <code>RunnableConnectionHandler</code> handle client requests 

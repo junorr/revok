@@ -26,7 +26,7 @@ import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.Layout;
 import org.apache.log4j.PatternLayout;
 import org.apache.log4j.spi.LoggingEvent;
-import us.pserver.tools.Valid;
+import us.pserver.valid.Valid;
 
 /**
  *

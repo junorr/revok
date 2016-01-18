@@ -22,7 +22,7 @@
 package us.pserver.revok.container;
 
 import java.util.List;
-import us.pserver.tools.Valid;
+import us.pserver.valid.Valid;
 
 /**
  * Execute authentications of Credentials objects 

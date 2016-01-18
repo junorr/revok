@@ -25,7 +25,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
-import us.pserver.tools.Valid;
+import us.pserver.valid.Valid;
 
 /**
  * The Credentials object encapsulates information 
