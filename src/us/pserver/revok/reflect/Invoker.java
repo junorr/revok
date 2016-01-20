@@ -29,7 +29,7 @@ import us.pserver.revok.container.AuthenticationException;
 import us.pserver.revok.container.Credentials;
 import us.pserver.revok.container.ObjectContainer;
 import static us.pserver.revok.reflect.Invoker.DEFAULT_INVOKE_TRIES;
-import us.pserver.tools.Reflector;
+import us.pserver.tools.rfl.Reflector;
 import us.pserver.valid.Valid;
 
 

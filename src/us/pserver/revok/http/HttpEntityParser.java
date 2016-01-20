@@ -22,6 +22,7 @@
 package us.pserver.revok.http;
 
 import java.io.ByteArrayOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import org.apache.http.HttpEntity;
@@ -29,7 +30,7 @@ import us.pserver.cdr.crypt.CryptKey;
 import us.pserver.revok.protocol.JsonSerializer;
 import us.pserver.revok.protocol.ObjectSerializer;
 import us.pserver.streams.SearchableInputStream;
-import us.pserver.streams.deprecated.StreamCoderFactory;
+import us.pserver.streams.StreamCoderFactory;
 import us.pserver.streams.StreamResult;
 import us.pserver.streams.StreamUtils;
 import us.pserver.tools.UTF8String;
@@ -75,7 +76,7 @@ public class HttpEntityParser {
     key = null;
     if(os == null) os = new JsonSerializer();
     serial = os;
-    streamCoder = StreamCoderFactory.getNew();
+    streamCoder = new StreamCoderFactory();
   }
   
   
@@ -316,8 +317,8 @@ public class HttpEntityParser {
       return five;
     if(XmlConsts.START_CRYPT_KEY.contains(five)) {
       StreamUtils.skipUntil(is, XmlConsts.GT);
-      StreamResult sr = StreamUtils.readStringUntil(is, XmlConsts.END_CRYPT_KEY);
-      key = CryptKey.fromString(sr.content());
+			StreamResult sr = StreamUtils.readStringUntil(is, XmlConsts.END_CRYPT_KEY);
+			key = CryptKey.fromString(sr.content());
       if(!streamCoder.isCryptCoderEnabled()) {
         this.enableCryptCoder(key);
       }

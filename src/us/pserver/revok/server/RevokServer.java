@@ -29,9 +29,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.apache.http.HttpServerConnection;
 import org.apache.http.impl.DefaultBHttpServerConnection;
-import org.apache.log4j.Logger;
-import us.pserver.log.LogHelper;
-import us.pserver.log.Logging;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import us.pserver.revok.HttpConnector;
 import us.pserver.revok.container.ObjectContainer;
 import us.pserver.revok.factory.ChannelFactory;
@@ -81,7 +80,7 @@ public class RevokServer extends AbstractServer {
   
   private ObjectSerializer serial;
   
-  private LogHelper log;
+  private Logger log;
   
   
   /**
@@ -93,7 +92,7 @@ public class RevokServer extends AbstractServer {
    */
   public RevokServer(ObjectContainer cont) {
     super(cont);
-    this.enableLogging();
+    log = LoggerFactory.getLogger(this.getClass());
     cont.put(ObjectContainer.NAMESPACE_GLOBAL, SERVER_KEY, this);
     con = new HttpConnector();
     factory = ChannelFactoryBuilder.builder()
@@ -206,47 +205,6 @@ public class RevokServer extends AbstractServer {
   
   
   /**
-   * Get the log system.
-   * @return Log
-   */
-  public LogHelper getLogHelper() {
-    return log;
-  }
-  
-  
-  /**
-   * Set the log system.
-   * @param log Log
-   * @return This modified <code>RevokServer</code> instance.
-   */
-  public RevokServer setLogHelper(LogHelper log) {
-    if(log != null)
-      this.log = log;
-    return this;
-  }
-  
-  
-  /**
-   * Completly disable logging.
-   * @return This modified <code>RevokServer</code> instance.
-   */
-  public RevokServer disableLogging() {
-    Logger.getRootLogger().removeAllAppenders();
-    return this;
-  }
-  
-  
-  /**
-   * Enable stdout and errout logging.
-   * @return This modified <code>RevokServer</code> instance.
-   */
-  public RevokServer enableLogging() {
-    log = Logging.getConfigured(this.getClass());
-    return this;
-  }
-  
-  
-  /**
    * Validates and start the necessary components for server execution.
    */
   private void preStart() {
@@ -323,10 +281,7 @@ public class RevokServer extends AbstractServer {
       // Catch and log other error occurred accepting connections.
       // Errors over server listening connections are fatal
       // and irrecoverable.
-      log.error(
-          new IOException("Error running RevokServer", e));
-      if(!Logger.getRootLogger().getAllAppenders().hasMoreElements())
-        throw new RuntimeException("Error running RevokServer", e);
+      log.error("Error running RevokServer", e);
     }
     // Shutdown the server and log when it not should be running anymore
     log.info("Stopping ExecutorService...");

@@ -21,11 +21,10 @@
 
 package us.pserver.revok.servlet;
 
+import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.AppenderBase;
 import javax.servlet.ServletContext;
-import org.apache.log4j.AppenderSkeleton;
-import org.apache.log4j.Layout;
-import org.apache.log4j.PatternLayout;
-import org.apache.log4j.spi.LoggingEvent;
 import us.pserver.valid.Valid;
 
 /**
@@ -33,20 +32,20 @@ import us.pserver.valid.Valid;
  * @author Juno Roesler - juno@pserver.us
  * @version 0.0 - 23/08/2015
  */
-public class ServletAppender extends AppenderSkeleton {
+public class ServletAppenderBase extends AppenderBase<ILoggingEvent> {
   
-  private final String LOG_PATTERN = "%d{yyyy-MM-dd HH:mm:ss.SSS}  [%-5p]  %c{4}:%L - %m%n";
+  private final String LOG_PATTERN = "%date{yyyy-MM-dd HH:mm:ss,SSS} [%-5level] %logger{4}:%line - %msg%n";
   
   private final ServletContext sctx;
+	
+	private PatternLayoutEncoder encoder;
   
-  private final Layout layout;
   
-  
-  public ServletAppender(ServletContext sctx) {
+  public ServletAppenderBase(ServletContext sctx) {
     this.sctx = Valid.off(sctx).forNull()
         .getOrFail(ServletContext.class);
-    layout = new PatternLayout(LOG_PATTERN);
-    this.setLayout(layout);
+		encoder = new PatternLayoutEncoder();
+		encoder.setPattern(LOG_PATTERN);
   }
   
   
@@ -55,19 +54,23 @@ public class ServletAppender extends AppenderSkeleton {
   }
 
 
-  @Override
-  protected void append(LoggingEvent le) {
-    sctx.log("\n"+ layout.format(le));
+	@Override
+	protected void append(ILoggingEvent e) {
+		if(encoder == null || e == null) 
+			return;
+		sctx.log(
+				encoder.getLayout().doLayout(e)
+		);
+	}
+	
+	
+	public PatternLayoutEncoder getEncoder() {
+    return encoder;
   }
 
-
-  @Override
-  public boolean requiresLayout() {
-    return true;
+	
+  public void setEncoder(PatternLayoutEncoder encoder) {
+    this.encoder = encoder;
   }
-
-
-  @Override
-  public void close() {}
 
 }

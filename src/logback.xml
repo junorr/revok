@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+
+<configuration>
+
+	<appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>
+				%date{yyyy-MM-dd HH:mm:ss,SSS} [%-5level] %thread|%logger{4}:%line - %msg%n
+			</pattern>
+		</encoder>
+	</appender>
+	
+	<!--
+	<appender name="file" class="ch.qos.logback.core.FileAppender">
+		<encoder>
+			<pattern>
+				%date{yyyy-MM-dd HH:mm:ss.SSS}  [%-5level]  %logger{4}:%line - %msg%n
+			</pattern>
+		</encoder>
+	</appender>
+	-->
+	
+	<root level="debug">
+		<appender-ref ref="stdout"/>
+	</root>
+
+</configuration>

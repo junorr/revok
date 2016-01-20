@@ -3,19 +3,27 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
+            <file>file:/storage/java/revok/src/us/pserver/revok/channel_1/HttpRequestChannel.java</file>
+            <file>file:/storage/java/revok/src/us/pserver/revok/test/Calculator.java</file>
             <file>file:/storage/java/revok/src/us/pserver/revok/protocol/RunnableConnectionHandler.java</file>
+            <file>file:/storage/java/revok/src/us/pserver/revok/test/TestRevokClient.java</file>
             <file>file:/storage/java/revok/src/us/pserver/revok/reflect/Invoker.java</file>
             <file>file:/storage/java/revok/src/us/pserver/revok/http/HttpEntityFactory.java</file>
+            <file>file:/storage/java/revok/src/us/pserver/revok/channel/HttpResponseChannel.java</file>
             <file>file:/storage/java/revok/src/us/pserver/revok/servlet/ServletAppender.java</file>
             <file>file:/storage/java/revok/src/us/pserver/revok/container/ObjectContainer.java</file>
+            <file>file:/storage/java/revok/src/us/pserver/revok/http_1/HttpEntityParser2.java</file>
             <file>file:/storage/java/revok/src/us/pserver/revok/container/SingleCredentialsSource.java</file>
             <file>file:/storage/java/revok/src/us/pserver/revok/http/HttpEntityParser.java</file>
             <file>file:/storage/java/revok/src/us/pserver/revok/RemoteObject.java</file>
             <file>file:/storage/java/revok/src/us/pserver/revok/http_1/HttpEntityParser.java</file>
+            <file>file:/storage/java/revok/src/us/pserver/revok/channel/Channel.java</file>
             <file>file:/storage/java/revok/src/us/pserver/revok/channel/HttpRequestChannel.java</file>
             <file>file:/storage/java/revok/src/us/pserver/revok/test/TestRevokStress.java</file>
             <file>file:/storage/java/revok/src/us/pserver/revok/container/Authenticator.java</file>
             <file>file:/storage/java/revok/src/us/pserver/revok/container/Credentials.java</file>
+            <file>file:/storage/java/revok/src/us/pserver/revok/protocol/XmlSerializer.java</file>
+            <file>file:/storage/java/revok/src/us/pserver/revok/test/ICalculator.java</file>
         </group>
     </open-files>
 </project-private>

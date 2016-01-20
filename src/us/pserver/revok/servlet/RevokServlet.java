@@ -28,8 +28,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.log4j.Logger;
-import us.pserver.log.LogHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import us.pserver.revok.container.Authenticator;
 import us.pserver.revok.container.Credentials;
 import us.pserver.revok.container.CredentialsSource;
@@ -37,7 +37,7 @@ import us.pserver.revok.container.ObjectContainer;
 import us.pserver.revok.protocol.RunnableConnectionHandler;
 import us.pserver.revok.protocol.JsonSerializer;
 import us.pserver.revok.protocol.ObjectSerializer;
-import us.pserver.tools.Reflector;
+import us.pserver.tools.rfl.Reflector;
 
 /**
  * Servlet to be embeded in a servlet container, for handling 
@@ -54,7 +54,7 @@ public class RevokServlet extends HttpServlet {
   
   private ServletConfigUtil util;
   
-  private LogHelper log;
+  private Logger log;
   
   
   /**
@@ -70,7 +70,7 @@ public class RevokServlet extends HttpServlet {
           util.getParam(name)).create();
       if(ref.hasError()) {
         String msg = "Error creating ObjectSerializer: "+ util.getParam(name);
-        log.error(msg).error(ref.getError());
+				log.error(msg, ref.getError());
         throw new ServletException(msg, ref.getError());
       }
       log.debug("Using config custom serializer: "+ util.getParam(name));
@@ -120,7 +120,7 @@ public class RevokServlet extends HttpServlet {
           ref.onClass(sclass).create();
       if(ref.hasError()) {
         String msg = "Error creating CredentialsSource: "+ sclass;
-        log.error(msg).error(ref.getError());
+        log.error(msg, ref.getError());
         throw new ServletException(msg, ref.getError());
       }
       container = new ObjectContainer(new Authenticator(src));
@@ -134,10 +134,13 @@ public class RevokServlet extends HttpServlet {
   
   @Override
   public void init(ServletConfig config) throws ServletException {
-    Logger.getRootLogger().removeAllAppenders();
-    Logger.getRootLogger().addAppender(
-        new ServletAppender(config.getServletContext()));
-    log = LogHelper.off(this.getClass());
+		log = LoggerFactory.getLogger(this.getClass());
+		ch.qos.logback.classic.Logger lb = 
+				(ch.qos.logback.classic.Logger) log;
+		lb.addAppender(
+				new ServletAppenderBase(
+						config.getServletContext())
+		);
     log.debug("Init Servlet...");
     util = new ServletConfigUtil(config);
     this.initObjectSerializer();
@@ -154,7 +157,7 @@ public class RevokServlet extends HttpServlet {
       handler.run();
       handler.close();
     } catch(Exception e) {
-      log.error(e);
+      log.error("Error handling POST request", e);
       throw new ServletException(e.toString(), e);
     }
   }
